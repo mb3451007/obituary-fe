@@ -1,10 +1,41 @@
 "use client";
 import Image from "next/image";
 import React from "react";
+import { useEffect, useState } from "react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
+import { toast } from "react-hot-toast";
+import obituaryService from "@/services/obituary-service";
 
 const FuneralInFewDays = () => {
+  const [obituaries, setObituaries] = useState([]);
+  const today = new Date();
 
+  useEffect(() => {
+    fetchObituary();
+  }, []);
+  const fetchObituary = async () => {
+    try {
+      const response = await obituaryService.getObituary();
+
+      if (response.error) {
+        toast.error(
+          response.error || "Something went wrong. Please try again!"
+        );
+        return;
+      }
+
+      const sortedObituaries = response.obituaries.sort(
+        (a, b) =>
+          new Date(b.deathDate).getTime() - new Date(a.deathDate).getTime()
+      );
+
+      console.log(sortedObituaries);
+      setObituaries(sortedObituaries);
+    } catch (err) {
+      console.error("Error fetching obituary:", err);
+      toast.error(err.message || "Failed to fetch obituary.");
+    }
+  };
   const list1 = [
     {
       time: "11:00",
@@ -113,7 +144,7 @@ const FuneralInFewDays = () => {
               alt="Description of the image"
               width={25}
               height={59}
-              className=""
+              className="cursor-pointer	"
             />
           </div>
           <div className="ml-[62px] w-[420px] h-[445px] bg-black">
@@ -150,7 +181,7 @@ const FuneralInFewDays = () => {
               alt="Description of the image"
               width={25}
               height={59}
-              className=""
+              className="cursor-pointer	"
             />
           </div>
         </div>

@@ -1,8 +1,39 @@
 'use client';
 import React from 'react';
 import Dropdown from '@/app/components/appcomponents/Dropdown';
-
+import { useState } from 'react';
+import regionsAndCities from '@/utils/regionAndCities';
 const FuneralsLocalFloristComp = () => {
+
+ 
+ 
+  const [selectedCity, setSelectedCity] = useState(null);
+  
+  
+ 
+
+const cityOptions =  [
+  
+    ...Object.values(regionsAndCities)
+      .flat()
+      .map((city) => ({
+        place: city,
+        id: city,
+      }))
+      .sort((a, b) => a.place.localeCompare(b.place, "sl")),
+  ];
+
+  
+
+  const handleCitySelect = (item) => {
+    if(item.id==='allCities'){
+      setSelectedCity(null);
+      return
+    }
+    setSelectedCity(item.place);
+    setSelectedRegion(null);
+   
+  };
   return (
     <div className=' mx-auto w-full mobile:hidden tablet:block desktop:block'>
       <div className='relative flex justify-center flex-row w-full mx-auto dekstop:h-[284px] tablet:h-[284px] mobile:h-[235px]'>
@@ -37,6 +68,9 @@ const FuneralsLocalFloristComp = () => {
               isFromNotification={false}
               isFromFlower={false}
               isFromFlowerGreenBgTablet={true}
+              data={cityOptions}
+              selectedValue={selectedCity}
+              onSelect={()=>handleCitySelect()}
             />
           </div>
         </div>

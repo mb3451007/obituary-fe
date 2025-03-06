@@ -2,6 +2,7 @@
 import { React, useState } from "react";
 import Dropdown from "@/app/components/appcomponents/Dropdown";
 import Link from "next/link";
+import regionsAndCities from "@/utils/regionAndCities";
 
 const NotificationView = () => {
   const [isSelected, setIsSelected] = useState(false);
@@ -13,6 +14,23 @@ const NotificationView = () => {
   const handleCheckboxEnkrat = () => {
     setIsSelectedEnkrat(!isSelectedEnkrat);
   };
+
+  const [selectedCity, setSelectedCity] = useState(null);
+  const cityOptions = 
+  Object.values(regionsAndCities)
+      .flat()
+      .map((city) => ({
+        place: city,
+        id: city,
+      }))
+      .sort((a, b) => a.place.localeCompare(b.place, "sl"));
+
+const handleCitySelect = (item) => {
+        setSelectedCity(item.place);
+        console.log(selectedCity)
+    
+        
+      };
   return (
     <div className="w-full bg-[#fffbf4] flex justify-center mobile:h-[529px]">
       <div
@@ -40,6 +58,8 @@ const NotificationView = () => {
                   label="Izberi mesto"
                   isFromNotification={true}
                   isFromFlower={true}
+                  data={cityOptions}
+                  onSelect={()=>handleCitySelect()}
                 />
 
                 <input

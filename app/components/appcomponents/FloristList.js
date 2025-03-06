@@ -4,8 +4,26 @@ import Dropdown from '@/app/components/appcomponents/Dropdown';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState } from 'react';
 
+import regionsAndCities from "@/utils/regionAndCities";
 const FloristList = () => {
+      const [selectedCity, setSelectedCity] = useState(null);
+      const cityOptions = 
+      Object.values(regionsAndCities)
+          .flat()
+          .map((city) => ({
+            place: city,
+            id: city,
+          }))
+          .sort((a, b) => a.place.localeCompare(b.place, "sl"));
+
+  const handleCitySelect = (item) => {
+            setSelectedCity(item.place);
+            console.log(selectedCity)
+        
+            
+          };
   // 17 September 2024
   const arrPlace = [
     { place: 'Place 1', url: '/florists', id: 1 },
@@ -94,6 +112,7 @@ const FloristList = () => {
                 isFromNotification={false}
                 isFromFlower={false}
                 isFrom={'florist'}
+              
               />
             </div>
             <div className='flex tablet:hidden justify-center items-center w-12 h-full desktop:aspect-square rounded-lg bg-[#414141]'>
@@ -118,7 +137,8 @@ const FloristList = () => {
                 label={'Išči po krajih'}
                 isFromNotification={false}
                 isFromFlower={false}
-                data={arrPlace}
+                data={cityOptions}
+                onSelect={()=>handleCitySelect()}
               />
             </div>
             {/* <div> */}

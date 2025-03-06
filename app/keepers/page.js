@@ -11,8 +11,67 @@ import crossImg from "../../public/crossImg.png";
 import filterImg from "../../public/exportgrey.png";
 import blueArrow from "../../public/rightarrow.png";
 import purpleArrow from "../../public/pinkrightarrow.png";
+import regionsAndCities from "@/utils/regionAndCities";
+import { useState } from 'react';
 
 const Page = () => {
+  const allRegionsOption = { place: "- Pokaži vse regije - ", id: "allRegions" };
+  const allCitiesOption = { place: " - Pokaži vse občine - ", id: "allCities" };
+  const [selectedCity, setSelectedCity] = useState(null);
+  const [selectedRegion, setSelectedRegion] = useState(null);
+  
+const regionOptions = [
+  allRegionsOption, 
+  ...Object.keys(regionsAndCities).map((region) => ({
+    place: region,
+    id: region,
+  }))
+];
+
+const cityOptions = selectedRegion && selectedRegion !== "allRegions"
+? [
+    allCitiesOption,
+    ...regionsAndCities[selectedRegion].map((city) => ({
+      place: city,
+      id: city,
+    })),
+  ]
+: [
+    allCitiesOption,
+    ...Object.values(regionsAndCities)
+      .flat()
+      .map((city) => ({
+        place: city,
+        id: city,
+      }))
+      .sort((a, b) => a.place.localeCompare(b.place, "sl")),
+  ];
+
+  const handleRegionSelect = (item) => {
+    if(item.id==='allRegions'){
+      setSelectedRegion(null);
+      setSelectedCity(null);
+      return
+    }
+    setSelectedRegion(item.place);
+    setSelectedCity(null);
+  };
+
+  const handleCitySelect = (item) => {
+    if(item.id==='allCities'){
+      setSelectedCity(null);
+      return
+    }
+    setSelectedCity(item.place);
+    setSelectedRegion(null);
+    // const region = Object.keys(regionsAndCities).find((region) =>
+    //   regionsAndCities[region].includes(item.place)
+    // );
+
+    // if (region) {
+    //   setSelectedRegion(region);
+    // }
+  };
   const tableData = [
     {
       Memory: "Mario Danilo",
@@ -217,6 +276,9 @@ const Page = () => {
                 isFromFlower={false}
                 isFrom={""}
                 isFromFlowerGreenBgTablet={false}
+                data={cityOptions}
+                selectedValue={selectedCity}
+                onSelect={()=>handleCitySelect()}
               />
               <div className="flex h-[16px] w-[360px] tablet:hidden desktop:hidden" />
               <Dropdown
@@ -225,6 +287,9 @@ const Page = () => {
                 isFromFlower={false}
                 isFrom={""}
                 isFromFlowerGreenBgTablet={false}
+                data={regionOptions}
+                selectedValue={selectedRegion}
+                onSelect={()=>handleRegionSelect()}
               />
             </div>
             <div className="hidden desktop:flex justify-center w-12 items-center h-full desktop:aspect-square rounded-lg bg-[#414141]">

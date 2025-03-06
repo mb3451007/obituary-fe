@@ -39,7 +39,8 @@ const MemoryPage = ({ params }) => {
           );
           return;
         }
-
+        console.log(response)
+ 
         setObituary(response.obituaries[0]);
 
         if (id) {

@@ -1,5 +1,5 @@
-import axios from 'axios';
-import API_BASE_URL from '@/config/apiConfig';
+import axios from "axios";
+import API_BASE_URL from "@/config/apiConfig";
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -7,14 +7,14 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const accesstoken = localStorage.getItem('access-token');
-    const refreshtoken = localStorage.getItem('refresh-token');
+    const accesstoken = localStorage.getItem("access-token");
+    const refreshtoken = localStorage.getItem("refresh-token");
 
     if (accesstoken) {
-      config.headers['access-token'] = accesstoken;
+      config.headers["access-token"] = accesstoken;
     }
     if (refreshtoken) {
-      config.headers['refresh-token'] = refreshtoken;
+      config.headers["refresh-token"] = refreshtoken;
     }
     return config;
   },
@@ -25,33 +25,33 @@ axiosInstance.interceptors.request.use(
 
 axiosInstance.interceptors.response.use(
   (response) => {
-    const newAccessToken = response.headers['access-token'];
-    const newRefreshToken = response.headers['refresh-token'];
+    const newAccessToken = response.headers["access-token"];
+    const newRefreshToken = response.headers["refresh-token"];
 
     if (newAccessToken) {
-      localStorage.setItem('access-token', newAccessToken);
+      localStorage.setItem("access-token", newAccessToken);
     }
     if (newRefreshToken) {
-      localStorage.setItem('refresh-token', newRefreshToken);
+      localStorage.setItem("refresh-token", newRefreshToken);
     }
 
     return response;
   },
   (error) => {
     if (error.response.status === 401) {
-      localStorage.removeItem('access-token');
-      localStorage.removeItem('refresh-token');
-      localStorage.removeItem('user');
+      localStorage.removeItem("access-token");
+      localStorage.removeItem("refresh-token");
+      localStorage.removeItem("user");
 
       if (
-        window.location.pathname !== '/loginpage' &&
-        window.location.pathname !== '/registrationpage'
+        window.location.pathname !== "/loginpage" &&
+        window.location.pathname !== "/registrationpage"
       ) {
-        window.location.href = '/loginpage';
+        window.location.href = "/loginpage";
       }
     } else if (error.response.status === 403) {
-      if (window.location.pathname !== '/') {
-        window.location.href = '/';
+      if (window.location.pathname !== "/") {
+        window.location.href = "/";
       }
     }
     return Promise.reject(error);

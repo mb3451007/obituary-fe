@@ -8,6 +8,8 @@ import SponsorComponent from "../components/appcomponents/SponsorComponent";
 import PartnersCompo from "../components/appcomponents/PartnersCompo";
 
 const FuneralsList = () => {
+
+
   return (
     <Layout from={"2"} forFooter={''}>
       <div className="flex flex-col mx-auto bg-[#F5F7F9] w-full">

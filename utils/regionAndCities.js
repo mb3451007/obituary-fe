@@ -1,5 +1,7 @@
 const regionsAndCities = {
+
   Osrednjeslovenska: [
+    
     'Borovnica',
     'Brezovica',
     'Dobrepolje',

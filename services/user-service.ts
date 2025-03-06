@@ -1,7 +1,7 @@
 import axios from './axios';
 
 const registerUser = async (userData: {
-  name: string;
+ 
   email: string;
   password: string;
   role: string;

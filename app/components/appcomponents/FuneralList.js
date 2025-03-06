@@ -4,8 +4,19 @@ import Dropdown from '@/app/components/appcomponents/Dropdown';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import Image from 'next/image';
 import Link from 'next/link';
-
+import regionsAndCities from "@/utils/regionAndCities";
+import { useState } from 'react';
 const FuneralList = () => {
+  const [selectedRegion, setSelectedRegion] = useState(null);
+  const regionOptions = Object.keys(regionsAndCities).map((region) => ({
+    place: region,
+    id: region,
+  }));
+
+  const handleRegionSelect = (item) => {
+    setSelectedRegion(item.place);
+     
+  };
   const arrRegions = [
     {
       place: 'Company 1',
@@ -82,7 +93,9 @@ const FuneralList = () => {
                 isFromNotification={false}
                 isFromFlower={false}
                 isFrom={'florist'}
-                data={arrRegions}
+                data={regionOptions}
+                selectedValue={selectedRegion}
+                onSelect={()=>handleRegionSelect()}
               />
             </div>
             <div className='flex tablet:hidden  justify-center items-center w-12 h-full desktop:aspect-square rounded-lg bg-[#414141]'>

@@ -16,7 +16,7 @@ import LocalQuickReview from './components/appcomponents/LocalQuickReview';
 import MegaMenu from './components/appcomponents/MegaMenuMain';
 import obituaryService from '@/services/obituary-service';
 import { toast } from 'react-hot-toast';
-
+import regionsAndCities from "@/utils/regionAndCities";
 export default function Home() {
   // 17 September 2024
   const arrPlace = [
@@ -44,7 +44,64 @@ export default function Home() {
   const [isMessageModalVisible, setIsMessageModalVisible] = useState(false);
   const [isLocalQuickModalVisible, setIsLocalQuickModalVisible] =
     useState(false);
+    const allRegionsOption = { place: "- Pokaži vse regije - ", id: "allRegions" };
+    const allCitiesOption = { place: " - Pokaži vse občine - ", id: "allCities" };
+    
+    const [selectedCity, setSelectedCity] = useState(null);
+    const [selectedRegion, setSelectedRegion] = useState(null);
+    
+  const regionOptions = [
+    allRegionsOption, 
+    ...Object.keys(regionsAndCities).map((region) => ({
+      place: region,
+      id: region,
+    }))
+  ];
+  
+  const cityOptions = selectedRegion && selectedRegion !== "allRegions"
+  ? [
+      allCitiesOption,
+      ...regionsAndCities[selectedRegion].map((city) => ({
+        place: city,
+        id: city,
+      })),
+    ]
+  : [
+      allCitiesOption,
+      ...Object.values(regionsAndCities)
+        .flat()
+        .map((city) => ({
+          place: city,
+          id: city,
+        }))
+        .sort((a, b) => a.place.localeCompare(b.place, "sl")),
+    ];
 
+    const handleRegionSelect = (item) => {
+      if(item.id==='allRegions'){
+        setSelectedRegion(null);
+        setSelectedCity(null);
+        return
+      }
+      setSelectedRegion(item.place);
+      setSelectedCity(null);
+    };
+  
+    const handleCitySelect = (item) => {
+      if(item.id==='allCities'){
+        setSelectedCity(null);
+        return
+      }
+      setSelectedCity(item.place);
+      setSelectedRegion(null);
+      // const region = Object.keys(regionsAndCities).find((region) =>
+      //   regionsAndCities[region].includes(item.place)
+      // );
+  
+      // if (region) {
+      //   setSelectedRegion(region);
+      // }
+    };
   const arrIpadData = [
     {
       heading: 'Osmrtnica',
@@ -65,32 +122,38 @@ export default function Home() {
   ];
 
   useEffect(() => {
-    const fetchObituary = async () => {
-      try {
-        const response = await obituaryService.getObituary();
-
-        if (response.error) {
-          toast.error(
-            response.error || 'Something went wrong. Please try again!'
-          );
-          return;
-        }
-
-        const sortedObituaries = response.obituaries.sort(
-          (a: any, b: any) =>
-            new Date(b.deathDate).getTime() - new Date(a.deathDate).getTime()
-        );
-
-        setObituaries(sortedObituaries);
-      } catch (err: any) {
-        console.error('Error fetching obituary:', err);
-        toast.error(err.message || 'Failed to fetch obituary.');
-      }
-    };
+   
 
     fetchObituary();
   }, []);
+  const fetchObituary = async () => {
+    try {
 
+   const queryParams = {};
+
+      if (selectedCity) queryParams.city = selectedCity;
+
+      if (selectedRegion) queryParams.region = selectedRegion;
+      const response = await obituaryService.getObituary(queryParams);
+
+      if (response.error) {
+        toast.error(
+          response.error || 'Something went wrong. Please try again!'
+        );
+        return;
+      }
+
+      const sortedObituaries = response.obituaries.sort(
+        (a, b) =>
+          new Date(b.deathDate).getTime() - new Date(a.deathDate).getTime()
+      );
+
+      setObituaries(sortedObituaries);
+    } catch (err) {
+      console.error('Error fetching obituary:', err);
+      toast.error(err.message || 'Failed to fetch obituary.');
+    }
+  };
   const [showMegaMenu, setShowMegaMenu] = useState(false);
   const [showContent, setShowContent] = useState(true);
   const funcMegaMenu = () => {
@@ -193,27 +256,32 @@ export default function Home() {
                     }}
                   />
                 </div>
-                <Dropdown
-                  label={'Išči po kraju'}
-                  isFromNotification={false}
-                  isFromObituary={false}
-                  isFromFlower={false}
-                  isFrom={'mainPage'}
-                  isFromFlowerGreenBgTablet={false}
-                  onSelect={() => console.log('')}
-                />
-                <div className='flex h-[16px] w-[360px] tablet:hidden desktop:hidden' />
-                <Dropdown
+             
+                   <Dropdown
                   label={'Išči po regiji'}
                   isFromNotification={false}
                   isFromFlower={false}
                   isFrom={'mainPage'}
                   isFromFlowerGreenBgTablet={false}
                   isFromObituary={false}
-                  onSelect={() => console.log('')}
+                  data={regionOptions}
+                  selectedValue={selectedRegion}
+                  onSelect={handleRegionSelect}
+                />
+                <div className='flex h-[16px] w-[360px] tablet:hidden desktop:hidden' />
+                <Dropdown
+                  label={'Išči po kraju'}
+                  isFromNotification={false}
+                  isFromObituary={false}
+                  isFromFlower={false}
+                  isFrom={'mainPage'}
+                  data={cityOptions}
+                  selectedValue={selectedCity}
+                  isFromFlowerGreenBgTablet={false}
+                  onSelect={handleCitySelect}
                 />
               </div>
-              <div className='hidden desktop:flex justify-center  w-12 items-center h-full desktop:aspect-square rounded-lg bg-[#414141]'>
+              <div onClick={()=>fetchObituary()} className='hidden desktop:flex justify-center  w-12 items-center h-full desktop:aspect-square rounded-lg bg-[#414141]'>
                 <MagnifyingGlassIcon className='w-5 h-5 text-white hidden desktop:block' />
               </div>
             </div>
@@ -318,8 +386,8 @@ export default function Home() {
                   isFrom={'mainPage'}
                   isFromFlowerGreenBgTablet={false}
                   isFromObituary={false}
-                  data={arrPlace}
-                  onSelect={() => console.log('')}
+                  data={cityOptions}
+                  onSelect={() => handleCitySelect()}
                 />
               </div>
             </div>

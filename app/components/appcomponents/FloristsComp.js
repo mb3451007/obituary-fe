@@ -1,8 +1,34 @@
 'use client';
 import React from 'react';
 import Dropdown from './Dropdown';
-
+import { useState } from 'react';
+import regionsAndCities from '@/utils/regionAndCities';
 const FloristsComp = () => {
+  
+  const [selectedCity, setSelectedCity] = useState(null);
+  
+  
+ 
+
+const cityOptions =  [
+  
+    ...Object.values(regionsAndCities)
+      .flat()
+      .map((city) => ({
+        place: city,
+        id: city,
+      }))
+      .sort((a, b) => a.place.localeCompare(b.place, "sl")),
+  ];
+
+  
+
+  const handleCitySelect = (item) => {
+   
+    setSelectedCity(item.place);
+    
+   
+  };
   // 17 September 2024
   const arrPlace = [
     { place: 'Place 1', url: '/florists', id: 1 },
@@ -70,7 +96,9 @@ const FloristsComp = () => {
                   label={'Izberi kraj'}
                   isFromFlower={true}
                   isFromNotification={false}
-                  data={arrPlace}
+                  data={cityOptions}
+                  selectedValue={selectedCity}
+                  onSelect={()=>handleCitySelect()}
                 />
               </div>
             </div>

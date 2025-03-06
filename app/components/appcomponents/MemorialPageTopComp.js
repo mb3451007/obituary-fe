@@ -240,12 +240,12 @@ const MemorialPageTopComp = ({ set_Id, setModal, data }) => {
                           },
                         ]
                       : []),
-                    ...(data?.events || [])
-                      .filter((event) => {
-                        const eventDate = new Date(event.eventDate).getTime();
-                        const today = new Date().getTime();
-                        return eventDate + 5 * 24 * 60 * 60 * 1000 >= today;
-                      })
+                      ...(Array.isArray(data?.events) ? data.events : []).filter((event) => {
+  const eventDate = new Date(event.eventDate).getTime();
+  const today = new Date().getTime();
+  return eventDate + 5 * 24 * 60 * 60 * 1000 >= today;
+})
+
                       .map((event) => ({
                         type: 'event',
                         timestamp: new Date(event.eventDate).setHours(
@@ -285,14 +285,12 @@ const MemorialPageTopComp = ({ set_Id, setModal, data }) => {
                               },
                             ]
                           : []),
-                        ...(data?.events || [])
-                          .filter((event) => {
-                            const eventDate = new Date(
-                              event.eventDate
-                            ).getTime();
-                            const today = new Date().getTime();
-                            return eventDate + 5 * 24 * 60 * 60 * 1000 >= today; // Exclude events older than 5 days
-                          })
+                          ...(Array.isArray(data?.events) ? data.events : []).filter((event) => {
+  const eventDate = new Date(event.eventDate).getTime();
+  const today = new Date().getTime();
+  return eventDate + 5 * 24 * 60 * 60 * 1000 >= today;
+})
+
                           .map((event) => ({
                             type: 'event',
                             timestamp: new Date(event.eventDate).setHours(
