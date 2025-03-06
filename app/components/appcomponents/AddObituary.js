@@ -78,15 +78,15 @@ const AddObituary = ({ set_Id, setModal }) => {
 
   const funeralDropdownRef = useRef(null);
 
-  // useEffect(() => {
-  //   const storedUser = localStorage.getItem('user');
-  //   if (!storedUser) {
-  //     toast.error('You must be logged in to access this page.');
-  //     router.push('/loginpage');
-  //   } else {
-  //     setUser(JSON.parse(storedUser));
-  //   }
-  // }, [router]);
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (!storedUser) {
+      toast.error("You must be logged in to access this page.");
+      router.push("/loginpage");
+    } else {
+      setUser(JSON.parse(storedUser));
+    }
+  }, [router]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {

@@ -13,15 +13,15 @@ const LastObituariesList = () => {
   const [obituaries, setObituaries] = useState([]);
   const [user, setUser] = useState(null);
 
-  // useEffect(() => {
-  //   const storedUser = localStorage.getItem('user');
-  //   if (!storedUser) {
-  //     toast.error('You must be logged in to access this page.');
-  //     router.push('/loginpage');
-  //   } else {
-  //     setUser(JSON.parse(storedUser));
-  //   }
-  // }, []);
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (!storedUser) {
+      toast.error("You must be logged in to access this page.");
+      router.push("/loginpage");
+    } else {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
 
   useEffect(() => {
     const fetchObituary = async () => {
