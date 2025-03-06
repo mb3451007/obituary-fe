@@ -43,11 +43,8 @@ axiosInstance.interceptors.response.use(
       localStorage.removeItem("refresh-token");
       localStorage.removeItem("user");
 
-      if (
-        window.location.pathname !== "/loginpage" &&
-        window.location.pathname !== "/registrationpage"
-      ) {
-        window.location.href = "/loginpage";
+      if (window.location.pathname !== "/registrationpage") {
+        window.location.href = "/registrationpage";
       }
     } else if (error.response.status === 403) {
       if (window.location.pathname !== "/") {
