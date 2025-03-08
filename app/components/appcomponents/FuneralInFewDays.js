@@ -9,6 +9,7 @@ import obituaryService from "@/services/obituary-service";
 const FuneralInFewDays = () => {
   const [startDateFunerals, setStartDateFunerals] = useState([]);
   const [endDateFunerals, setEndDateFunerals] = useState([]);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   const [city, setCity] = useState("trbovlje");
   const today = new Date();
@@ -23,11 +24,18 @@ const FuneralInFewDays = () => {
     date.toISOString().split("T")[0] + "T23:59:59.999Z";
 
   const [startDate, setStartDate] = useState(formatStartDate(today));
-  const [endDate, setEndDate] = useState(formatEndDate(tomorrow));
+  const [endDate, setEndDate] = useState(
+    isMobile ? formatEndDate(today) : formatEndDate(tomorrow)
+  );
 
   const nextDates = () => {
     const newStartDate = new Date(startDate);
     newStartDate.setDate(newStartDate.getDate() + 1);
+    if (isMobile) {
+      setStartDate(formatStartDate(newStartDate));
+      setEndDate(formatEndDate(newStartDate));
+      return;
+    }
 
     const newEndDate = new Date(endDate);
     newEndDate.setDate(newEndDate.getDate() + 1);
@@ -39,13 +47,26 @@ const FuneralInFewDays = () => {
   const prevDates = () => {
     const newStartDate = new Date(startDate);
     newStartDate.setDate(newStartDate.getDate() - 1);
-
+    if (isMobile) {
+      setStartDate(formatStartDate(newStartDate));
+      setEndDate(formatEndDate(newStartDate));
+      return;
+    }
     const newEndDate = new Date(endDate);
     newEndDate.setDate(newEndDate.getDate() - 1);
 
     setStartDate(formatStartDate(newStartDate));
     setEndDate(formatEndDate(newEndDate));
   };
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     fetchObituary();
@@ -163,8 +184,8 @@ const FuneralInFewDays = () => {
 
   return (
     <div className="w-full h-auto flex justify-center items-center mb-5 mobile:bg-[#DAEBF140]">
-      <div className="flex w-full h-auto mobile:self-center tablet:h-[729px] mobile:w-[360px] mobile:h-[684px] flex-col items-center tablet:bg-[#DAEBF140] tablet:border-t-[1px] tablet:border-b-[1px] tablet:border-b-[#D4D4D4] tablet:border-t-[#D4D4D4]">
-        <div className="flex flex-col desktop:w-[1087px] desktop:h-[159px] desktop:pl-[85px] tablet:w-[598px] tablet:h-[626px] tablet:mt-[45px] mobile:w-[321px] mobile:h-[590px] mobile:mt-[28px]">
+      <div className="flex w-full h-auto mobile:self-center tablet:h-[729px] mobile:w-[360px] mobile:h-auto flex-col items-center tablet:bg-[#DAEBF140] tablet:border-t-[1px] tablet:border-b-[1px] tablet:border-b-[#D4D4D4] tablet:border-t-[#D4D4D4]">
+        <div className="flex flex-col desktop:w-[1087px] desktop:h-[159px] desktop:pl-[85px] tablet:w-[598px] tablet:h-[626px] tablet:mt-[45px] mobile:w-[321px] mobile:h-auto mobile:mt-[28px]">
           {/*Header text*/}
           <div className="flex h-12 items-center desktop:pt-[53.65px] desktop:pb-[30px] desktop:pl-[2px] tablet:pr-[21px]">
             <div className="text-[#1E2125] text-[40px] font-variation-customOpt40 font-normal mobile:text-[28px] mobile:font-variation-customOpt28">
@@ -184,18 +205,18 @@ const FuneralInFewDays = () => {
           </div>
 
           {/*Torek Mobile container*/}
-          <div className=" w-[598px] h-[445px] desktop:hidden mobile:w-[321px] bg-black mt-[48px] mobile:mt-[32px]">
-            <div className="bg-[#CAF0F8]">
+          <div className=" w-[598px]  desktop:hidden mobile:w-[321px] bg-black mt-[48px] mobile:mt-[32px]">
+            <div className="bg-[#CAF0F8] min-h-[445px]  h-auto">
               <div className="h-[89px] w-full flex items-center border-t-[1px] justify-between">
                 <div className="flex h-6 items-center pl-[31px] mobile:pl-[15px]">
                   <div className="text-[#000000] text-[28px] font-variation-customOpt28 font-light mobile:text-[24px] mobile:truncate">
-                    Torek, 04.01.
+                    {formatDate(startDate)}
                   </div>
                 </div>
 
                 <div className="flex w-[152px] h-[48px] mobile:w-[90px] mobile:h-[41px] justify-center items-center mr-7 mobile:mr-[7px]">
                   <button
-                    onClick={() => scroll("left")}
+                    onClick={() => prevDates()}
                     className="hidden mobile:flex tablet:flex w-[48px] h-[48px] mobile:w-[36px] mobile:h-[36px] rounded-lg text-black justify-center items-center shadow-custom-light-dark bg-gradient-to-br from-[#E3E8EC] to-[#FFFFFF]"
                   >
                     <img
@@ -206,7 +227,7 @@ const FuneralInFewDays = () => {
                   </button>
 
                   <button
-                    onClick={() => scroll("right")}
+                    onClick={() => nextDates()}
                     className="hidden mobile:flex tablet:flex ml-[52px] w-[48px] h-[48px] mobile:w-[36px] mobile:ml-[18px] mobile:h-[36px] rounded-lg text-black justify-center items-center shadow-custom-light-dark bg-gradient-to-br from-[#E3E8EC] to-[#FFFFFF]"
                   >
                     <img
@@ -218,9 +239,17 @@ const FuneralInFewDays = () => {
                 </div>
               </div>
 
-              {list1?.map((item, index) => (
-                <ListView item={item} key={index} />
-              ))}
+              {startDateFunerals && startDateFunerals.length > 0 ? (
+                startDateFunerals.map((item, index) => (
+                  <ListView item={item} key={index} />
+                ))
+              ) : (
+                <div className="flex   items-center justify-center py-5 ">
+                  <p className="text-gray-900    font-semibold">
+                    Na tento dátum nie je žiadny pohreb!
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
