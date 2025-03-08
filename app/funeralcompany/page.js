@@ -56,7 +56,7 @@ const FuneralCompany = () => {
             </p>
           </div>
         </div>
-        <div
+        {/* <div
           className="flex  z-[45] absolute desktop:w-[1200px] tablet:w-[680px] mobile:w-[360px] justify-end
                 mobile:mt-[1770px] tablet:mt-[3150px] desktop:mt-[3030px] mobile:hidden
               "
@@ -67,8 +67,8 @@ const FuneralCompany = () => {
               kjer se že dolga leta ne opravljajo več pokopi.
             </p>
           </div>
-        </div>
-        <div
+        </div> */}
+        {/* <div
           className="flex z-[45] absolute desktop:w-[1200px] tablet:w-[680px] mobile:w-[360px] justify-end
                 mobile:mt-[3220px] tablet:mt-[2650px] desktop:mt-[3510px] tablet:hidden
               "
@@ -83,8 +83,8 @@ const FuneralCompany = () => {
               kjer se že dolga leta ne opravljajo več pokopi.
             </p>
           </div>
-        </div>
-        <div
+        </div> */}
+        {/* <div
           className="hidden z-[45] absolute desktop:w-[1200px] tablet:w-[680px] mobile:w-[360px] justify-end
                 mobile:mt-[4050px] tablet:mt-[3700px] desktop:mt-[3910px] desktop:flex
               "
@@ -97,8 +97,8 @@ const FuneralCompany = () => {
               Enako tudi gumb ‘’Kaj storiti, ko se zgodi’’
             </p>
           </div>
-        </div>
-        <div
+        </div> */}
+        {/* <div
           className="flex  z-[45] absolute desktop:w-[1200px] tablet:w-[680px] mobile:w-[360px] justify-end
                 mobile:mt-[5005px] tablet:mt-[4860px] desktop:mt-[4370px]
               "
@@ -117,7 +117,7 @@ const FuneralCompany = () => {
               uporabnikom in vam.
             </p>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* <div className="flex flex-col mx-auto w-full desktop:bg-[#F5F7F9] bg-white">

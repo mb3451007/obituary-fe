@@ -3,7 +3,7 @@ import React from "react";
 const Pride = () => {
   return (
     <div
-      className="max-w-[1920px] w-full tablet:h-[359px] mobile:h-[567px] desktop:pt-[64px] desktop:pb-[64px] 
+      className="max-w-[1920px] relative w-full tablet:h-[359px] mobile:h-[567px] desktop:pt-[64px] desktop:pb-[64px] 
          tablet:bg-gradient-to-r tablet:from-[#E6EBFA66] tablet:to-[#E2EEFC66]
          mobile:bg-gradient-to-r mobile:from-[#E6EBFA66] mobile:to-[#E2EEFC66]
         overflow-hidden mx-auto flex desktop:justify-center desktop:items-center tablet:justify-center tablet:items-center mobile:justify-center"
@@ -53,6 +53,21 @@ const Pride = () => {
             alt="Pride_img"
             className="h-full w-full object-cover rounded-lg"
           />
+        </div>
+      </div>
+
+      <div
+        className="hidden z-[45] absolute desktop:w-[1200px] tablet:w-[680px] mobile:w-[360px] justify-end
+                mobile:mt-[4050px] tablet:mt-[3700px] desktop:mt-[10%] desktop:flex
+              "
+      >
+        <div className="flex bg-[#FFFFFF] self-end  shadow-custom-dark-dark-box-image-wall px-[18px] py-[17px] rounded-[17px] w-[171px] ">
+          <p className="flex mobile:hidden text-[#1E2125] text-[12px] leading-[18px] font-extralight">
+            Koristne informacije za uporabnike. Sami napišete najbolj pogosta
+            vprašanja in nanje odgovorite. <br />
+            <br />
+            Enako tudi gumb ‘’Kaj storiti, ko se zgodi’’
+          </p>
         </div>
       </div>
     </div>
