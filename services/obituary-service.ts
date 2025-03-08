@@ -27,6 +27,23 @@ const getObituary = async (queryParams?: {
   }
 };
 
+const getFunerals = async (queryParams?: {
+  city?: string;
+  region?: string;
+  id?: string;
+  startDate?: string;
+  endDate?: string;
+}) => {
+  try {
+    const endpoint = "/obituary/funerals";
+    console.log(endpoint, queryParams);
+    const response = await axios.get(endpoint, { params: queryParams });
+    return response.data;
+  } catch (error: unknown) {
+    console.error("Error fetching obituaries:", error);
+    throw new Error("Network error or no response");
+  }
+};
 const updateObituary = async (id: string, formData: FormData) => {
   try {
     const endpoint = `/obituary/${id}`;
@@ -54,6 +71,7 @@ const updateObituaryVisits = async (id: string) => {
 const obituaryService = {
   createObituary,
   getObituary,
+  getFunerals,
   updateObituary,
   updateObituaryVisits,
 };

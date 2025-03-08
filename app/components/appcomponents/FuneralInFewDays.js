@@ -7,15 +7,59 @@ import { toast } from "react-hot-toast";
 import obituaryService from "@/services/obituary-service";
 
 const FuneralInFewDays = () => {
-  const [obituaries, setObituaries] = useState([]);
+  const [startDateFunerals, setStartDateFunerals] = useState([]);
+  const [endDateFunerals, setEndDateFunerals] = useState([]);
+  const [city, setCity] = useState("trbovlje");
   const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
+  const formatStartDate = (date) =>
+    date.toISOString().split("T")[0] + "T00:00:00Z";
+  const formatEndDate = (date) =>
+    date.toISOString().split("T")[0] + "T23:59:59.999Z";
+
+  const [startDate, setStartDate] = useState(formatStartDate(today));
+  const [endDate, setEndDate] = useState(formatEndDate(tomorrow));
+
+  const nextDates = () => {
+    const newStartDate = new Date(startDate);
+    newStartDate.setDate(newStartDate.getDate() + 1);
+
+    const newEndDate = new Date(endDate);
+    newEndDate.setDate(newEndDate.getDate() + 1);
+
+    setStartDate(formatStartDate(newStartDate));
+    setEndDate(formatEndDate(newEndDate));
+  };
+
+  const prevDates = () => {
+    const newStartDate = new Date(startDate);
+    newStartDate.setDate(newStartDate.getDate() - 1);
+
+    const newEndDate = new Date(endDate);
+    newEndDate.setDate(newEndDate.getDate() - 1);
+
+    setStartDate(formatStartDate(newStartDate));
+    setEndDate(formatEndDate(newEndDate));
+  };
 
   useEffect(() => {
     fetchObituary();
-  }, []);
+  }, [startDate]);
   const fetchObituary = async () => {
     try {
-      const response = await obituaryService.getObituary();
+      const queryParams = {};
+      if (city) {
+        queryParams.city = city;
+      }
+
+      queryParams.startDate = startDate;
+
+      queryParams.endDate = endDate;
+      const response = await obituaryService.getFunerals(queryParams);
 
       if (response.error) {
         toast.error(
@@ -23,20 +67,63 @@ const FuneralInFewDays = () => {
         );
         return;
       }
-
-      const sortedObituaries = response.obituaries.sort(
-        (a, b) =>
-          new Date(b.deathDate).getTime() - new Date(a.deathDate).getTime()
-      );
-
-      console.log(sortedObituaries);
-      setObituaries(sortedObituaries);
+      splitFunerals(response.obituaries, startDate, endDate);
     } catch (err) {
       console.error("Error fetching obituary:", err);
       toast.error(err.message || "Failed to fetch obituary.");
     }
   };
+
+  const splitFunerals = (data, startDate, endDate) => {
+    let startFunerals = [];
+    let endFunerals = [];
+
+    // Convert startDate and endDate to Date objects (without time)
+    const start = new Date(startDate).toISOString().split("T")[0];
+    const end = new Date(endDate).toISOString().split("T")[0];
+
+    data.forEach((funeral) => {
+      const funeralDate = new Date(funeral.funeralTimestamp)
+        .toISOString()
+        .split("T")[0];
+
+      if (funeralDate === start) {
+        startFunerals.push(funeral);
+      } else if (funeralDate === end) {
+        endFunerals.push(funeral);
+      }
+    });
+    console.log(startFunerals);
+    setStartDateFunerals(startFunerals);
+    setEndDateFunerals(endFunerals);
+    console.log(endFunerals);
+  };
+
+  const formatDate = (timestamp) => {
+    return new Date(timestamp).toLocaleString("sl-SI", {
+      weekday: "long",
+      month: "2-digit",
+      day: "2-digit",
+      timeZone: "UTC",
+    });
+  };
   const list1 = [
+    {
+      time: "11:00",
+      name: "Elizabeta Škorjanc",
+    },
+    {
+      time: "13:00",
+      name: "Marija Špes",
+    },
+    {
+      time: "15:00",
+      name: "Tatjana Štruc",
+    },
+    {
+      time: "15:30",
+      name: "Alojz Lavbič",
+    },
     {
       time: "11:00",
       name: "Elizabeta Škorjanc",
@@ -74,7 +161,7 @@ const FuneralInFewDays = () => {
   ];
 
   return (
-    <div className="w-full flex justify-center items-center mobile:bg-[#DAEBF140]">
+    <div className="w-full h-auto flex justify-center items-center mobile:bg-[#DAEBF140]">
       <div className="flex w-full h-[723px] mobile:self-center tablet:h-[729px] mobile:w-[360px] mobile:h-[684px] flex-col items-center tablet:bg-[#DAEBF140] tablet:border-t-[1px] tablet:border-b-[1px] tablet:border-b-[#D4D4D4] tablet:border-t-[#D4D4D4]">
         <div className="flex flex-col desktop:w-[1087px] desktop:h-[159px] desktop:pl-[85px] tablet:w-[598px] tablet:h-[626px] tablet:mt-[45px] mobile:w-[321px] mobile:h-[590px] mobile:mt-[28px]">
           {/*Header text*/}
@@ -95,7 +182,7 @@ const FuneralInFewDays = () => {
             <SearchFunc label={"Išči po imenu"} />
           </div>
 
-          {/*Torek container*/}
+          {/*Torek Mobile container*/}
           <div className=" w-[598px] h-[445px] desktop:hidden mobile:w-[321px] bg-black mt-[48px] mobile:mt-[32px]">
             <div className="bg-[#CAF0F8]">
               <div className="h-[89px] w-full flex items-center border-t-[1px] justify-between">
@@ -136,8 +223,8 @@ const FuneralInFewDays = () => {
             </div>
           </div>
         </div>
-
-        <div className="flex flex-row desktop:w-[1090px] desktop:pt-[53px] tablet:h-[451px] tablet:hidden mobile:hidden ">
+        {/*Desktop View */}
+        <div className="flex flex-row h-auto desktop:w-[1090px] desktop:pt-[53px] tablet:h-[451px] tablet:hidden mobile:hidden ">
           <div className="mt-[29px]">
             <Image
               src="/left_gray_icon.png"
@@ -145,34 +232,51 @@ const FuneralInFewDays = () => {
               width={25}
               height={59}
               className="cursor-pointer	"
+              onClick={() => prevDates()}
             />
           </div>
-          <div className="ml-[62px] w-[420px] h-[445px] bg-black">
-            <div className="  bg-[#CAF0F8]">
-              <div className="h-[89px] w-full flex items-center border-t-[1px] ">
+          <div className="ml-[62px] w-[420px]  ">
+            <div className="  bg-[#CAF0F8] min-h-[445px]">
+              <div className="h-[89px] w-full flex items-center  border-b-[1px]    border-[#C3C6C8]  ">
                 <div className="flex h-6 items-center pl-[27px] ">
                   <div className="text-[#000000] text-[28px] font-variation-customOpt28 font-light">
-                    Torek, 04.01.
+                    {formatDate(startDate)}
                   </div>
                 </div>
               </div>
-              {list1?.map((item, index) => (
-                <ListView item={item} key={index} />
-              ))}
+              {startDateFunerals && startDateFunerals.length > 0 ? (
+                startDateFunerals.map((item, index) => (
+                  <ListView item={item} key={index} />
+                ))
+              ) : (
+                <div className="flex   items-center justify-center h-full py-5">
+                  <p className="text-gray-900  -300 font-semibold">
+                    Na tento dátum nie je žiadny pohreb!
+                  </p>
+                </div>
+              )}
             </div>
           </div>
-          <div className="w-[420px] h-[445px] bg-[#FFE5B4] ml-[70px]">
-            <div className="  bg-transparent">
-              <div className="h-[89px] w-full flex items-center border-t-[1px] ">
+          <div className="w-[420px]  bg-[#FFE5B4] ml-[70px]">
+            <div className="  bg-transparent min-h-[445px]">
+              <div className="h-[89px] w-full flex items-center border-b-[1px]    border-[#C3C6C8] ">
                 <div className="flex h-6 items-center pl-[27px] ">
                   <div className="text-[#000000] text-[28px] font-variation-customOpt28 font-light">
-                    Sreda, 05.01.
+                    {formatDate(endDate)}
                   </div>
                 </div>
               </div>
-              {list2?.map((item, index) => (
-                <ListView item={item} key={index} />
-              ))}
+              {endDateFunerals && endDateFunerals.length > 0 ? (
+                endDateFunerals.map((item, index) => (
+                  <ListView item={item} key={index} />
+                ))
+              ) : (
+                <div className="flex   items-center justify-center h-full">
+                  <p className="text-gray-900  -300 font-semibold">
+                    Na tento dátum nie je žiadny pohreb!
+                  </p>
+                </div>
+              )}
             </div>
           </div>
           <div className="ml-[69px] mt-[29px]">
@@ -182,6 +286,7 @@ const FuneralInFewDays = () => {
               width={25}
               height={59}
               className="cursor-pointer	"
+              onClick={() => nextDates()}
             />
           </div>
         </div>
@@ -190,14 +295,20 @@ const FuneralInFewDays = () => {
   );
 };
 const ListView = ({ item, key }) => {
+  const formatDate = (timestamp) => {
+    return new Date(timestamp).toLocaleString("sl-SI", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
   return (
-    <div className="h-[89px] w-full flex items-center justify-between px-[20px] tablet:px-[21px] border-t-[1px] border-[#C3C6C8] ">
+    <div className="h-[89px] w-full flex items-center justify-between px-[20px] tablet:px-[21px] border-b-[1px]    border-[#C3C6C8] ">
       <div className="flex h-6 items-center p-[1px] ">
         <p className="text-[#333333] mobile:ml-[-4px] text-[24px] font-variation-customOpt24 font-light">
-          {item?.time}
+          {formatDate(item?.funeralTimestamp)}
         </p>
         <p className="ml-[22px] mobile:ml-[16px] text-[#333333] text-[18px] font-light">
-          {item?.name}
+          {item?.name} {item?.sirName}
         </p>
       </div>
       <div className="flex h-6 w-6 mobile:mr-[-5px] items-center justify-center">
