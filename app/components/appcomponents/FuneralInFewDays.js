@@ -9,6 +9,7 @@ import obituaryService from "@/services/obituary-service";
 const FuneralInFewDays = () => {
   const [startDateFunerals, setStartDateFunerals] = useState([]);
   const [endDateFunerals, setEndDateFunerals] = useState([]);
+
   const [city, setCity] = useState("trbovlje");
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -161,8 +162,8 @@ const FuneralInFewDays = () => {
   ];
 
   return (
-    <div className="w-full h-auto flex justify-center items-center mobile:bg-[#DAEBF140]">
-      <div className="flex w-full h-[723px] mobile:self-center tablet:h-[729px] mobile:w-[360px] mobile:h-[684px] flex-col items-center tablet:bg-[#DAEBF140] tablet:border-t-[1px] tablet:border-b-[1px] tablet:border-b-[#D4D4D4] tablet:border-t-[#D4D4D4]">
+    <div className="w-full h-auto flex justify-center items-center mb-5 mobile:bg-[#DAEBF140]">
+      <div className="flex w-full h-auto mobile:self-center tablet:h-[729px] mobile:w-[360px] mobile:h-[684px] flex-col items-center tablet:bg-[#DAEBF140] tablet:border-t-[1px] tablet:border-b-[1px] tablet:border-b-[#D4D4D4] tablet:border-t-[#D4D4D4]">
         <div className="flex flex-col desktop:w-[1087px] desktop:h-[159px] desktop:pl-[85px] tablet:w-[598px] tablet:h-[626px] tablet:mt-[45px] mobile:w-[321px] mobile:h-[590px] mobile:mt-[28px]">
           {/*Header text*/}
           <div className="flex h-12 items-center desktop:pt-[53.65px] desktop:pb-[30px] desktop:pl-[2px] tablet:pr-[21px]">
@@ -235,8 +236,8 @@ const FuneralInFewDays = () => {
               onClick={() => prevDates()}
             />
           </div>
-          <div className="ml-[62px] w-[420px]  ">
-            <div className="  bg-[#CAF0F8] min-h-[445px]">
+          <div className="ml-[62px] w-[420px]  flex flex-col ">
+            <div className="  bg-[#CAF0F8] min-h-[445px] flex-1 ">
               <div className="h-[89px] w-full flex items-center  border-b-[1px]    border-[#C3C6C8]  ">
                 <div className="flex h-6 items-center pl-[27px] ">
                   <div className="text-[#000000] text-[28px] font-variation-customOpt28 font-light">
@@ -249,16 +250,16 @@ const FuneralInFewDays = () => {
                   <ListView item={item} key={index} />
                 ))
               ) : (
-                <div className="flex   items-center justify-center h-full py-5">
-                  <p className="text-gray-900  -300 font-semibold">
+                <div className="flex   items-center justify-center py-5 ">
+                  <p className="text-gray-900    font-semibold">
                     Na tento dátum nie je žiadny pohreb!
                   </p>
                 </div>
               )}
             </div>
           </div>
-          <div className="w-[420px]  bg-[#FFE5B4] ml-[70px]">
-            <div className="  bg-transparent min-h-[445px]">
+          <div className="w-[420px]  bg-[#FFE5B4] ml-[70px] flex flex-col">
+            <div className="  bg-transparent min-h-[445px]  flex-1">
               <div className="h-[89px] w-full flex items-center border-b-[1px]    border-[#C3C6C8] ">
                 <div className="flex h-6 items-center pl-[27px] ">
                   <div className="text-[#000000] text-[28px] font-variation-customOpt28 font-light">
@@ -271,8 +272,8 @@ const FuneralInFewDays = () => {
                   <ListView item={item} key={index} />
                 ))
               ) : (
-                <div className="flex   items-center justify-center h-full">
-                  <p className="text-gray-900  -300 font-semibold">
+                <div className="flex   items-center justify-center  py-5">
+                  <p className="text-gray-900   font-semibold">
                     Na tento dátum nie je žiadny pohreb!
                   </p>
                 </div>
