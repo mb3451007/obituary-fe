@@ -9,9 +9,9 @@ import obituaryService from "@/services/obituary-service";
 const FuneralInFewDays = () => {
   const [startDateFunerals, setStartDateFunerals] = useState([]);
   const [endDateFunerals, setEndDateFunerals] = useState([]);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [isMobile, setIsMobile] = useState(false);
 
-  const [city, setCity] = useState("trbovlje");
+  const [city, setCity] = useState("Trbovlje");
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -22,7 +22,16 @@ const FuneralInFewDays = () => {
     date.toISOString().split("T")[0] + "T00:00:00Z";
   const formatEndDate = (date) =>
     date.toISOString().split("T")[0] + "T23:59:59.999Z";
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
 
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   const [startDate, setStartDate] = useState(formatStartDate(today));
   const [endDate, setEndDate] = useState(
     isMobile ? formatEndDate(today) : formatEndDate(tomorrow)

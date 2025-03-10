@@ -5,9 +5,9 @@ const nextConfig = {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
       {
-        protocol: "http",
-        hostname: "localhost",
-        port: "4000", // Include the port if applicable
+        protocol: "https",
+        hostname: "dev112.osmrtnica.com",
+        port: "", // Omit the port since it's not specified for production
         pathname: "/api/obituaryUploads/**", // Match the path for your images
       },
     ],

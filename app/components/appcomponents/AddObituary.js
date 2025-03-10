@@ -78,15 +78,15 @@ const AddObituary = ({ set_Id, setModal }) => {
 
   const funeralDropdownRef = useRef(null);
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (!storedUser) {
-      toast.error("You must be logged in to access this page.");
-      router.push("/registrationpage");
-    } else {
-      setUser(JSON.parse(storedUser));
-    }
-  }, [router]);
+  // useEffect(() => {
+  //   const storedUser = localStorage.getItem("user");
+  //   if (!storedUser) {
+  //     toast.error("You must be logged in to access this page.");
+  //     router.push("/registrationpage");
+  //   } else {
+  //     setUser(JSON.parse(storedUser));
+  //   }
+  // }, [router]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -1537,11 +1537,12 @@ const AddObituary = ({ set_Id, setModal }) => {
                       return dateA - dateB;
                     })
                     .map((event, index) => (
-                      <div className="my-4">
+                      <div key={event.eventName || index} className="my-4">
+                        {" "}
+                        {/* Added key prop */}
                         <div className="text-[16px] text-[#1E2125] font-normal leading-6">
                           {event.eventName}
                         </div>
-
                         <div
                           index={index}
                           className="flex flex-row space-x-6 mobile:space-x-0 mobile:flex-col"
