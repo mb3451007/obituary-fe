@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Modal,
   ModalContent,
@@ -17,6 +17,7 @@ export default function ModalLibrary({
   select_id,
   set_Id,
   selectedImage,
+  data,
 }) {
   const [scrollBehavior, setScrollBehavior] = React.useState("outside");
 
@@ -51,6 +52,7 @@ export default function ModalLibrary({
                 select_id={select_id}
                 set_Id={set_Id}
                 selectedImage={selectedImage}
+                data={data}
               />
             </div>
           </div>

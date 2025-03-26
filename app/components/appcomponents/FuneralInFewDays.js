@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import { toast } from "react-hot-toast";
 import obituaryService from "@/services/obituary-service";
-
+import { useRouter } from "next/navigation";
 const FuneralInFewDays = () => {
   const [startDateFunerals, setStartDateFunerals] = useState([]);
   const [endDateFunerals, setEndDateFunerals] = useState([]);
@@ -18,20 +18,20 @@ const FuneralInFewDays = () => {
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
 
-  const formatStartDate = (date) =>
-    date.toISOString().split("T")[0] + "T00:00:00Z";
-  const formatEndDate = (date) =>
-    date.toISOString().split("T")[0] + "T23:59:59.999Z";
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
+  const formatStartDate = (date) => {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}-${String(date.getDate()).padStart(2, "0")}T00:00:00`;
+  };
 
-    handleResize();
-    window.addEventListener("resize", handleResize);
+  const formatEndDate = (date) => {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}-${String(date.getDate()).padStart(2, "0")}T23:59:59.999`;
+  };
 
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
   const [startDate, setStartDate] = useState(formatStartDate(today));
   const [endDate, setEndDate] = useState(
     isMobile ? formatEndDate(today) : formatEndDate(tomorrow)
@@ -40,6 +40,15 @@ const FuneralInFewDays = () => {
   const nextDates = () => {
     const newStartDate = new Date(startDate);
     newStartDate.setDate(newStartDate.getDate() + 1);
+
+    // Get today's date and calculate max allowed date (7 days ahead)
+    const maxDate = new Date();
+    maxDate.setDate(maxDate.getDate() + 7);
+    maxDate.setHours(0, 0, 0, 0);
+
+    // Prevent going beyond the max date
+    if (newStartDate > maxDate) return;
+
     if (isMobile) {
       setStartDate(formatStartDate(newStartDate));
       setEndDate(formatEndDate(newStartDate));
@@ -49,6 +58,8 @@ const FuneralInFewDays = () => {
     const newEndDate = new Date(endDate);
     newEndDate.setDate(newEndDate.getDate() + 1);
 
+    if (newEndDate > maxDate) return;
+
     setStartDate(formatStartDate(newStartDate));
     setEndDate(formatEndDate(newEndDate));
   };
@@ -56,13 +67,29 @@ const FuneralInFewDays = () => {
   const prevDates = () => {
     const newStartDate = new Date(startDate);
     newStartDate.setDate(newStartDate.getDate() - 1);
+
+    // Get today's date and reset its time to midnight for comparison
+    const minDate = new Date();
+    minDate.setHours(0, 0, 0, 0);
+
+    // Set the maximum allowed past date (7 days ago)
+    const maxPastDate = new Date();
+    maxPastDate.setDate(maxPastDate.getDate() - 7);
+    maxPastDate.setHours(0, 0, 0, 0);
+
+    // Prevent going before the last 7 days
+    if (newStartDate < maxPastDate) return;
+
     if (isMobile) {
       setStartDate(formatStartDate(newStartDate));
       setEndDate(formatEndDate(newStartDate));
       return;
     }
+
     const newEndDate = new Date(endDate);
     newEndDate.setDate(newEndDate.getDate() - 1);
+
+    if (newEndDate < maxPastDate) return;
 
     setStartDate(formatStartDate(newStartDate));
     setEndDate(formatEndDate(newEndDate));
@@ -98,6 +125,7 @@ const FuneralInFewDays = () => {
         );
         return;
       }
+      console.log(response.obituaries, "----------------");
       splitFunerals(response.obituaries, startDate, endDate);
     } catch (err) {
       console.error("Error fetching obituary:", err);
@@ -109,25 +137,48 @@ const FuneralInFewDays = () => {
     let startFunerals = [];
     let endFunerals = [];
 
-    // Convert startDate and endDate to Date objects (without time)
-    const start = new Date(startDate).toISOString().split("T")[0];
-    const end = new Date(endDate).toISOString().split("T")[0];
+    // Convert startDate to range (00:00:00 - 23:59:59)
+    const startOfDay = new Date(startDate);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(startDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    // Convert endDate to range (00:00:00 - 23:59:59)
+    const startOfEndDay = new Date(endDate);
+    startOfEndDay.setHours(0, 0, 0, 0);
+
+    const endOfEndDay = new Date(endDate);
+    endOfEndDay.setHours(23, 59, 59, 999);
+
+    console.log(startOfDay.toISOString(), "----- start day");
+    console.log(endOfDay.toISOString(), "----- end of start day");
+    console.log(startOfEndDay.toISOString(), "----- start of end day");
+    console.log(endOfEndDay.toISOString(), "----- end of end day");
 
     data.forEach((funeral) => {
-      const funeralDate = new Date(funeral.funeralTimestamp)
-        .toISOString()
-        .split("T")[0];
+      const funeralTimestamp = new Date(funeral.funeralTimestamp);
+      console.log(funeralTimestamp.toISOString(), "----- actual funeral date");
 
-      if (funeralDate === start) {
+      // Check if funeral timestamp falls within startDate range
+      if (funeralTimestamp >= startOfDay && funeralTimestamp <= endOfDay) {
         startFunerals.push(funeral);
-      } else if (funeralDate === end) {
+      }
+
+      // Check if funeral timestamp falls within endDate range
+      if (
+        funeralTimestamp >= startOfEndDay &&
+        funeralTimestamp <= endOfEndDay
+      ) {
         endFunerals.push(funeral);
       }
     });
-    console.log(startFunerals);
+
+    console.log(startFunerals, "------ start funerals");
+    console.log(endFunerals, "------ end funerals");
+
     setStartDateFunerals(startFunerals);
     setEndDateFunerals(endFunerals);
-    console.log(endFunerals);
   };
 
   const formatDate = (timestamp) => {
@@ -135,7 +186,6 @@ const FuneralInFewDays = () => {
       weekday: "long",
       month: "2-digit",
       day: "2-digit",
-      timeZone: "UTC",
     });
   };
   const list1 = [
@@ -254,8 +304,8 @@ const FuneralInFewDays = () => {
                 ))
               ) : (
                 <div className="flex   items-center justify-center py-5 ">
-                  <p className="text-gray-900    font-semibold">
-                    Na tento dátum nie je žiadny pohreb!
+                  <p className="text-gray-900    font-normal">
+                    Na ta dan ni pogrebov
                   </p>
                 </div>
               )}
@@ -289,8 +339,8 @@ const FuneralInFewDays = () => {
                 ))
               ) : (
                 <div className="flex   items-center justify-center py-5 ">
-                  <p className="text-gray-900    font-semibold">
-                    Na tento dátum nie je žiadny pohreb!
+                  <p className="text-gray-900    font-normal">
+                    Na ta dan ni pogrebov
                   </p>
                 </div>
               )}
@@ -311,8 +361,8 @@ const FuneralInFewDays = () => {
                 ))
               ) : (
                 <div className="flex   items-center justify-center  py-5">
-                  <p className="text-gray-900   font-semibold">
-                    Na tento dátum nie je žiadny pohreb!
+                  <p className="text-gray-900    font-normal">
+                    Na ta dan ni pogrebov
                   </p>
                 </div>
               )}
@@ -334,14 +384,32 @@ const FuneralInFewDays = () => {
   );
 };
 const ListView = ({ item, key }) => {
+  const router = useRouter();
   const formatDate = (timestamp) => {
     return new Date(timestamp).toLocaleString("sl-SI", {
       hour: "2-digit",
       minute: "2-digit",
     });
   };
+
+  const handleClick = () => {
+    const responseDeathDate = new Date(item.deathDate);
+    const deathDateFormatted = `${responseDeathDate
+      .getDate()
+      .toString()
+      .padStart(2, "0")}${(responseDeathDate.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}${responseDeathDate.getFullYear().toString().slice(2)}`;
+
+    router.push(
+      `/memorypage/${item.id}/${item.name}_${item.sirName}_${deathDateFormatted}`
+    );
+  };
   return (
-    <div className="h-[89px] w-full flex items-center justify-between px-[20px] tablet:px-[21px] border-b-[1px]    border-[#C3C6C8] ">
+    <div
+      className="h-[89px] w-full flex items-center justify-between px-[20px] tablet:px-[21px] border-b-[1px]    border-[#C3C6C8] "
+      onClick={() => handleClick()}
+    >
       <div className="flex h-6 items-center p-[1px] ">
         <p className="text-[#333333] mobile:ml-[-4px] text-[24px] font-variation-customOpt24 font-light">
           {formatDate(item?.funeralTimestamp)}

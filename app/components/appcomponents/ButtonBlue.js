@@ -6,8 +6,15 @@ import Image from "next/image";
 const ButtonBlue = ({ placeholder, isFor = "" }) => {
   // 23 October 2024 - {`${isFor === "Moj Račun" ? "desktopUserAcc:w-full" : " w-[250px] mobile:w-[200px]"} rounded-[10px] shadow-custom-dark-bottom`}>
   return (
-    <div className={`${isFor === "Moj Račun" ? "desktopUserAcc:w-full" : " w-[250px] mobile:w-[200px]"} rounded-[10px] shadow-custom-dark-bottom`}>
-      <div
+    <div
+      className={`${
+        isFor === "Moj Račun"
+          ? "desktopUserAcc:w-full"
+          : " w-[250px] mobile:w-[200px]"
+      } rounded-[10px] shadow-custom-dark-bottom`}
+    >
+      <label
+        htmlFor={isFor}
         className="h-[50px] bg-gradient-to-b from-[#0D94E8] to-[#0A85C2] border-[1px] border-[#FFFFFF40] 
         flex justify-center items-center rounded-[10px]"
       >
@@ -17,7 +24,7 @@ const ButtonBlue = ({ placeholder, isFor = "" }) => {
         >
           {placeholder}
         </div>
-      </div>
+      </label>
     </div>
   );
 };

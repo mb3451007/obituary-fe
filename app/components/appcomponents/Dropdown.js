@@ -71,7 +71,7 @@ const Dropdown = ({
               fontVariationSettings: "'opsz' 16",
             }}
           >
-            {selectedValue} 
+            {selectedValue}
           </span>
         )}
         {!selectedValue && (
@@ -97,13 +97,12 @@ const Dropdown = ({
         <ul
           tabIndex={0}
           className="dropdown-content  z-[1] shadow-box-shadow   rounded-box w-full max-h-60 overflow-y-auto"
-        
-        style={{backgroundColor: '#f1fffe',}}>
+          style={{ backgroundColor: "#f1fffe" }}
+        >
           {data.map((item, index) => (
             <li
               key={index}
-              className="cursor-pointer hover:bg-[#6D778E] hover:text-white text-[#7d7d7d]  p-2 rounded-md"
-              
+              className="cursor-pointer hover:bg-[#6D778E] hover:text-white text-[#7d7d7d] pl-4 p-2 rounded-md"
               onClick={() => handleSelect(item)}
             >
               {item.place}

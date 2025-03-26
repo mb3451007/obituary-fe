@@ -12,7 +12,6 @@ import authService from "@/services/auth-service";
 const Registration = () => {
   const router = useRouter();
 
-  
   const [inputValueEmail, setInputValueEmail] = useState("");
   const [inputValueGeslo, setInputValueGeslo] = useState("");
   const [inputValueConfirmGeslo, setInputValueConfirmGeslo] = useState("");
@@ -22,8 +21,6 @@ const Registration = () => {
   const [enabledRememberMe, setEnabledRememberMe] = useState(true);
 
   const [activeDiv, setActiveDiv] = useState("login");
-
- 
 
   const handleEmailInput = (event) => {
     setInputValueEmail(event.target.value);
@@ -38,12 +35,7 @@ const Registration = () => {
   };
 
   const handleRegister = async () => {
-    if (
- 
-      !inputValueEmail ||
-      !inputValueGeslo ||
-      !inputValueConfirmGeslo
-    ) {
+    if (!inputValueEmail || !inputValueGeslo || !inputValueConfirmGeslo) {
       toast.error("All fields are required");
       return;
     }
@@ -66,14 +58,16 @@ const Registration = () => {
 
     try {
       const payload = {
-   
         email: inputValueEmail,
         password: inputValueGeslo,
         role: "User",
       };
 
       const response = await userService.registerUser(payload);
-
+      if (response.status === 409) {
+        toast.error("Email Already Exists");
+        return;
+      }
       if (response.error) {
         toast.error(
           response.error || "Something went wrong. Please try again!"
@@ -104,7 +98,7 @@ const Registration = () => {
       };
 
       const response = await authService.login(payload);
-
+      console.log(response);
       if (response.error) {
         toast.error(
           response.error || "Something went wrong. Please try again!"
@@ -177,8 +171,7 @@ const Registration = () => {
 
         {/* Container for text inputs and forgot password and checkbox */}
         <div className="w-[429px] h-auto mobile:w-[297px] mobile:h-auto mt-[10px] mx-auto flex flex-col ">
-          
-            {/* <div className=" text-[#6D778E] text-[14px] leading-[20px] font-[400px] w-full h-[62px] flex flex-col justify-start items-start">
+          {/* <div className=" text-[#6D778E] text-[14px] leading-[20px] font-[400px] w-full h-[62px] flex flex-col justify-start items-start">
               <div>Ime</div>
               <div className="px-[10px] mt-[4px] h-[38px] rounded-[6px] bg-[#F2F8FF66] shadow-custom-dark-to-white w-full">
                 <input
@@ -189,7 +182,7 @@ const Registration = () => {
                 />
               </div>
             </div> */}
-     
+
           {/* Container for email field */}
           <div className=" text-[#6D778E] text-[14px] leading-[20px] font-[400px] w-full mt-[10px] h-[62px] flex flex-col justify-start items-start">
             <div>E-pošta</div>

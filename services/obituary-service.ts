@@ -27,6 +27,19 @@ const getObituary = async (queryParams?: {
   }
 };
 
+//memory
+const getMemory = async (queryParams?: { id?: string }) => {
+  try {
+    const endpoint = "/obituary/memory";
+    console.log(endpoint, { params: queryParams });
+    const response = await axios.get(endpoint, { params: queryParams });
+    return response.data;
+  } catch (error: unknown) {
+    console.error("Error fetching obituaries:", error);
+    throw new Error("Network error or no response");
+  }
+};
+
 const getFunerals = async (queryParams?: {
   city?: string;
   region?: string;
@@ -67,13 +80,66 @@ const updateObituaryVisits = async (id: string) => {
     throw new Error("Network error or no response");
   }
 };
+//add sorrow book
+const createSorrowBook = async (id: string, data: any) => {
+  try {
+    const endpoint = `/sorrow-book/${id}`;
+    const response = await axios.post(endpoint, data);
+    return response.data;
+  } catch (error: unknown) {
+    console.error("Error updating obituary:", error);
+    throw new Error("Network error or no response");
+  }
+};
 
+// add dedication
+const createDedication = async (id: string, data: any) => {
+  try {
+    const endpoint = `/dedication/${id}`;
+    const response = await axios.post(endpoint, data);
+    return response.data;
+  } catch (error: unknown) {
+    console.error("Error updating obituary:", error);
+    throw new Error("Network error or no response");
+  }
+};
+
+//add photo
+const addPhoto = async (id: string, formData: FormData) => {
+  try {
+    const endpoint = `/photo/${id}`;
+    const response = await axios.post(endpoint, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
+  } catch (error: unknown) {
+    console.error("Error updating obituary:", error);
+    throw new Error("Network error or no response");
+  }
+};
+
+// add condolence
+const createCondolence = async (id: string, data: any) => {
+  try {
+    const endpoint = `/condolence/${id}`;
+    const response = await axios.post(endpoint, data);
+    return response.data;
+  } catch (error: unknown) {
+    console.error("Error creating condolence:", error);
+    throw new Error("Network error or no response");
+  }
+};
 const obituaryService = {
   createObituary,
   getObituary,
+  getMemory,
   getFunerals,
   updateObituary,
   updateObituaryVisits,
+  createSorrowBook,
+  createDedication,
+  addPhoto,
+  createCondolence,
 };
 
 export default obituaryService;

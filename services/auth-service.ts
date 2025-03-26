@@ -1,15 +1,22 @@
-import axios from './axios';
+import axios from "./axios";
 
 const login = async (credentials: { email: string; password: string }) => {
-  const endpoint = '/auth/login';
+  try {
+    const endpoint = "/auth/login";
 
-  const response = await axios.post(endpoint, credentials);
+    const response = await axios.post(endpoint, credentials);
 
-  return response.data;
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return { error: error.response.data.error };
+    }
+    return { error: "An unexpected error occurred" };
+  }
 };
 
 const logout = async () => {
-  const endpoint = '/auth/logout';
+  const endpoint = "/auth/logout";
 
   const response = await axios.post(endpoint);
 

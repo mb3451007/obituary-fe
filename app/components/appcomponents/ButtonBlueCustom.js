@@ -1,13 +1,13 @@
 import React from "react";
 
-const ButtonBlue = ({ placeholder, color, key,onPress }) => {
+const ButtonBlue = ({ placeholder, color, key, onPress }) => {
   return (
-    <div
+    <button
       key={key}
       className="w-full rounded-[10px] shadow-custom-dark-bottom mt-8"
     >
       <div
-      onClick={onPress}
+        onClick={onPress}
         className={`h-12 mobile:h-[50px] cursor-pointer ${
           color === "yellowBorder"
             ? "border-[#D8A800] border-[1.5px] bg-[#E7EBF0]"
@@ -31,7 +31,7 @@ const ButtonBlue = ({ placeholder, color, key,onPress }) => {
           {placeholder}
         </div>
       </div>
-    </div>
+    </button>
   );
 };
 

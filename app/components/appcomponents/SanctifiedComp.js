@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const images = [
   {
@@ -38,9 +38,9 @@ const images = [
   },
 ];
 
-const SanctifiedComp = ({set_Id, setModal}) => {
-  const [currentIndex, setCurrentIndex] = useState(2);
-
+const SanctifiedComp = ({ set_Id, setModal, data }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [dedications, setDedications] = useState([]);
   const handlePrev = () => {
     setCurrentIndex((prevIndex) =>
       prevIndex === 0 ? prevIndex : prevIndex - 1
@@ -49,41 +49,55 @@ const SanctifiedComp = ({set_Id, setModal}) => {
 
   const handleNext = () => {
     setCurrentIndex((prevIndex) =>
-      prevIndex === images.length - 1 ? prevIndex : prevIndex + 1
+      prevIndex === data.length - 1 ? prevIndex : prevIndex + 1
     );
   };
 
-  const ImageSliderBlock = ({ item, index, key }) => {
+  useEffect(() => {
+    setDedications(data);
+  }, [data]);
+
+  const ImageSliderBlock = ({ dedication, index, key }) => {
+    const formatDate = (timestamp) => {
+      return new Date(timestamp).toLocaleString("sl-SI", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      });
+    };
+
     return (
       <div
         className={`absolute items-center mobile:px-[26px]    h-full w-full flex object-cover transition-opacity duration-500 ease-in-out 
-          ${index === currentIndex
-            ? " justify-center "
-            : index > currentIndex
+          ${
+            index === currentIndex
+              ? " justify-center "
+              : index > currentIndex
               ? "justify-end"
               : "justify-start"
           }
-              ${index === currentIndex
-            ? "z-30"
-            : index === currentIndex + 2 || index === currentIndex - 2
-              ?
-              "z-10"
-              : index === currentIndex + 1 || index === currentIndex - 1
-                ? " z-20"
-                : "z-0"
-          }
+              ${
+                index === currentIndex
+                  ? "z-30"
+                  : index === currentIndex + 2 || index === currentIndex - 2
+                  ? "z-10"
+                  : index === currentIndex + 1 || index === currentIndex - 1
+                  ? " z-20"
+                  : "z-0"
+              }
               `}
       >
-        <div className={`flex flex-row justify-between h-full w-full rounded-lg 
+        <div
+          className={`flex flex-row justify-between h-full w-full rounded-lg 
         px-[19px] pt-[20px]
         tablet:px-[24px] tablet:pt-[22px]
         desktop:pl-[22px] desktop:pr-[27px] desktop:pt-[27px] bg-[#FFF1DB] mobile:shadow-custom-light-dark mobile:rounded-lg 
-          `
-        } >
+          `}
+        >
           <div className="hidden desktop:flex ">
             <Image
               key={index}
-              src={images[currentIndex]?.image}
+              src={"/sveca_gori.avif"}
               alt="Description of the image"
               width={1000}
               height={1000}
@@ -94,8 +108,8 @@ const SanctifiedComp = ({set_Id, setModal}) => {
             <div className="flex w-full items-center justify-between ">
               <div className="flex desktop:hidden ">
                 <Image
-                  // src={"/burning_candle.png"}
-                  src={images[currentIndex]?.image}
+                  src={"/sveca_gori.avif"}
+                  // src={images[currentIndex]?.image}
                   alt="Description of the image"
                   width={1000}
                   height={1000}
@@ -103,56 +117,41 @@ const SanctifiedComp = ({set_Id, setModal}) => {
                 />
                 <div className="hidden tablet:flex mt-[50px] ml-[27px] h-[38px] items-center">
                   <h1 className="text-[#1E2125] text-[32px] font-variation-customOpt32 font-medium ">
-                    {images[currentIndex]?.name}
+                    {dedication?.title}
                   </h1>
                 </div>
-
               </div>
-              <div className="hidden desktop:flex h-[38px] items-center" >
+              <div className="hidden desktop:flex h-[38px] items-center">
                 <h1 className="text-[#1E2125] text-[32px] font-variation-customOpt32 font-medium ">
-                  {images[currentIndex]?.name}
+                  {dedication?.title}
                 </h1>
               </div>
 
               <div className="flex flex-col  h-full items-end">
                 <div className="flex h-[19px] items-center">
                   <p className="text-[#1E2125] text-[16px] font-variation-customOpt16">
-                    Marija Smrekar
+                    {dedication?.name}
                   </p>
                 </div>
                 <div className="flex h-[4] items-center mt-[11px]">
                   <p className=" text-[#414141] text-[12px] font-variation-customOpt12 ">
-                    {images[currentIndex]?.dates}
+                    {formatDate(dedication?.createdTimestamp)}
                   </p>
                 </div>
               </div>
             </div>
-            <div className="flex tablet:hidden desktop:hidden mt-4 h-[32px] items-center" >
+            <div className="flex tablet:hidden desktop:hidden mt-4 h-[32px] items-center">
               <h1 className="text-[#1E2125] text-[24px] font-variation-customOpt24 font-medium ">
-                {images[currentIndex]?.name}
+                {dedication?.title}
               </h1>
             </div>
             <div className="flex w-full  mt-4 tablet:mt-[30px] desktop:mt-[25px] flex-col ">
               <p className="  text-[#414141] text-[16px] font-variation-customOpt16 font-normal ">
-                Lorem ipsum dolor sit amet, consectetur
-                adipiscing elit, sed do eiusmod tempor
-                incididunt ut labore Lorem ipsum dolor sit
-                amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore
-              </p>
-
-              <p className=" mt-[21px] text-[#414141] text-[16px] font-variation-customOpt16 font-normal">
-                Coredolor sit amet, consectetur adipiscing
-                elit, sed do eiusmod incididunt ut labore
-                Lorem ipsum dolor sit amet, consectetur elit,
-                sed do eiusmod tempor incididunt ut labore
-                Lorem ipsum dolor sit amet, consectetur elit,
-                sed do eiusmod tempor incididunt ut labore
-                Ansectetur elit.
+                {dedication?.message}
               </p>
             </div>
-
-            <div className="w-full h-[14px] flex justify-end items-center mt-4  tablet:mt-[25px] desktop:mt-[21px]  ">
+            <div className="flex-grow"></div>
+            <div className="w-full h-[14px] flex justify-end items-center my-4  tablet:mt-[25px] desktop:mt-[21px]  ">
               <p className="flex text-[12px] text-[#414141] font-variation-customOpt12">
                 Odpri naprej
               </p>
@@ -165,13 +164,14 @@ const SanctifiedComp = ({set_Id, setModal}) => {
 
   return (
     <div className="relative pt-[118.5px]  tablet:pt-[132px] desktop:pt-[110px] mx-auto pb-[102px]  mb-[20px] max-w-[1920px] w-full overflow-hidden justify-center items-center flex flex-col">
-
-      <div className="flex flex-col justify-center items-center
+      <div
+        className="flex flex-col justify-center items-center
               w-full mobile:px-[30px]
               tablet:w-[600px]
               desktop:w-[720px] 
-             ">
-        <div className="flex mobile:h-[33px] h-[47px] items-center" >
+             "
+      >
+        <div className="flex mobile:h-[33px] h-[47px] items-center">
           <h className=" mobile:text-[28px] text-[40px] text-[#1E2125] font-variation-customOpt40 font-normal ">
             Posvetilo
           </h>
@@ -181,17 +181,19 @@ const SanctifiedComp = ({set_Id, setModal}) => {
             Delite zgodbe, čarobne trenutke, morda biografijo, zadnji pozdrav
           </p>
         </div>
-        <div onClick={() => {
-                    set_Id("13");
-                    setModal(true);
-                  }} className="flex cursor-pointer mt-6 w-full h-[16px] items-center justify-end pr-[11.5px] " >
+        <div
+          onClick={() => {
+            set_Id("13");
+            setModal(true);
+          }}
+          className="flex cursor-pointer mt-6 w-full h-[16px] items-center justify-end pr-[11.5px] "
+        >
           <Image
             src={"/round_add.png"}
             alt="Description of the image"
             width={100}
             height={100}
             className="hidden desktop:flex w-[12px] h-[12px] mr-[10px]  "
-
           />
           <Image
             src={"/pan.png"}
@@ -199,23 +201,27 @@ const SanctifiedComp = ({set_Id, setModal}) => {
             width={100}
             height={100}
             className="flex desktop:hidden w-[12px] h-[12px] mr-[10px]  "
-
           />
           <p className="text-[#414141] text-[14px] font-variation-customOpt12 font-normal">
             Dodaj Posvetilo
           </p>
         </div>
       </div>
-      <div  className="flex flex-col desktop:mb-5 desktop:shadow-custom-light-dark desktop:rounded-lg   mt-[34px] desktop:mt-6 mobile:w-full mobile:h-[720px] tablet:h-[460px] tablet:justify-center desktop:justify-center " >
-        <div   className="relative  w-[720px] tablet:shadow-custom-light-dark tablet:rounded-lg  tablet:w-[580px] mobile:w-full h-[350px] tablet:h-[383px] mobile:h-[633px]">
-          {images.map((image, index) => (
-            <ImageSliderBlock image={image} index={index} key={index} />
+      <div className="flex flex-col desktop:mb-5 desktop:shadow-custom-light-dark desktop:rounded-lg   mt-[34px] desktop:mt-6 mobile:w-full mobile:h-[720px] tablet:h-[460px] tablet:justify-center desktop:justify-center ">
+        <div className="relative  w-[720px] tablet:shadow-custom-light-dark tablet:rounded-lg  tablet:w-[580px] mobile:w-full h-[350px] tablet:h-[383px] mobile:h-[633px]">
+          {dedications?.map((dedication, index) => (
+            <ImageSliderBlock
+              dedication={dedication}
+              index={index}
+              key={index}
+            />
           ))}
-
         </div>
-        <div className="mobile:hidden flex absolute mobile:mt-[650px]  w-[150px] tablet:w-[670px]  z-45 self-center items-center 
+        <div
+          className="mobile:hidden flex absolute mobile:mt-[650px]  w-[150px] tablet:w-[670px]  z-45 self-center items-center 
                 justify-between  desktop:w-[1110px]  
-                 ">
+                 "
+        >
           <button
             onClick={handlePrev}
             className="flex  w-[60px] h-[60px]
@@ -237,7 +243,8 @@ const SanctifiedComp = ({set_Id, setModal}) => {
             desktop:h-[148px] desktop:w-[148px]
             items-center justify-center tablet:justify-end
              "
-          ><Image
+          >
+            <Image
               src={"/next_img_icon.png"}
               alt="Description of the image"
               width={1000}
@@ -276,12 +283,8 @@ const SanctifiedComp = ({set_Id, setModal}) => {
           </button>
         </div>
       </div>
-
-
     </div>
   );
 };
 
 export default SanctifiedComp;
-
-

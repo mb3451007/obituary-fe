@@ -279,19 +279,19 @@ const AddObituary = ({ set_Id, setModal }) => {
 
       toast.success("Obituary created successfully!");
 
-      const responseFuneralDate = new Date(response.funeralTimestamp);
-      const funeralDateFormatted = `${responseFuneralDate
+      const responseDeathDate = new Date(response.deathDate);
+      const deathDateFormatted = `${responseDeathDate
         .getDate()
         .toString()
-        .padStart(2, "0")}${(responseFuneralDate.getMonth() + 1)
+        .padStart(2, "0")}${(responseDeathDate.getMonth() + 1)
         .toString()
-        .padStart(2, "0")}${responseFuneralDate
+        .padStart(2, "0")}${responseDeathDate
         .getFullYear()
         .toString()
         .slice(2)}`;
 
       router.push(
-        `/memorypage/${response.id}/${response.name}_${response.sirName}_${funeralDateFormatted}`
+        `/memorypage/${response.id}/${response.name}_${response.sirName}_${deathDateFormatted}`
       );
     } catch (error) {
       console.error("Error creating obituary:", error);

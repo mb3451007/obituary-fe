@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import API_BASE_URL from "@/config/apiConfig";
 import Image from "next/image";
 import ButtonBlue from "./ButtonBlue";
 import ButtonGreen from "./ButtonGreen";
@@ -21,8 +22,10 @@ import img_placeholder from "@/public/img_placholder.png";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { getYear, getMonth } from "date-fns"; // To extract year and month info
+import obituaryService from "@/services/obituary-service";
+import toast from "react-hot-toast";
 
-const Modals = ({ select_id, set_Id, selectedImage }) => {
+const Modals = ({ select_id, set_Id, selectedImage, data }) => {
   const musicList = [
     "BREZ glasbe",
     "Prva izbira",
@@ -31,20 +34,162 @@ const Modals = ({ select_id, set_Id, selectedImage }) => {
     "Četrta izbira",
     "Peta izbira",
   ];
-
+  //common
+  const [error, setError] = useState(null);
   const [startDate, setStartDate] = useState(new Date()); // Store selected date
   const [openPicker, setOpenPicker] = useState(null); // Manage which dropdown is open: day, month, or year
   const [select, setSelect] = useState(1); // Manage which dropdown is select or not
   const [selectedHour, setSelectedHour] = useState(null);
   const [selectedMinute, setSelectedMinute] = useState(null);
+  const [obituaryText, setObituaryText] = useState("");
+  const [uploadedPicture, setUploadedPicture] = useState(null);
+  const [uploadedImage, setUploadedImage] = useState(null);
+  const [verse, setVerse] = useState(null);
+
+  //sorrow book
+  const [name, setName] = useState(null);
+  const [relation, setRelation] = useState(null);
+
+  const emptyField = (field) => {
+    console.log(`here ${field}`);
+    const setters = {
+      title: setTitle,
+      message: setMessage,
+      name: setName,
+      placeholderName: setPlaceholderName,
+    };
+
+    if (setters[field]) {
+      setters[field](null); // Call the correct state setter
+    }
+  };
+  const addSorrowBook = async () => {
+    const sorrowBookData = {
+      name,
+      relation,
+    };
+
+    try {
+      const response = await obituaryService.createSorrowBook(
+        data.id,
+        sorrowBookData
+      );
+
+      console.log(`Sorrow Book Created successfully!`, response);
+      setName(null);
+      setRelation(null);
+      toast.success("Sorrow Book Created Successfully");
+    } catch (error) {
+      console.error(`Failed to create SorrowBook`, error);
+      toast.error("Error Creating Sorrow Book");
+    }
+  };
+
+  //dedication
+  const [title, setTitle] = useState(null);
+  const [message, setMessage] = useState(null);
+  const addDedication = async () => {
+    const sorrowBookData = {
+      title,
+      message,
+      name,
+    };
+
+    try {
+      const response = await obituaryService.createDedication(
+        data.id,
+        sorrowBookData
+      );
+
+      console.log(`Dedication Created successfully!`, response);
+
+      toast.success("Dedication Created Successfully");
+      emptyField("name");
+      emptyField("message");
+      emptyField("title");
+    } catch (error) {
+      console.error(`Failed to create Dedication`, error);
+      toast.error("Error Creating Dedication");
+    }
+  };
+
+  //add photo
+  const addPhoto = async () => {
+    const formData = new FormData();
+    formData.append("picture", uploadedPicture);
+    try {
+      const response = await obituaryService.addPhoto(data.id, formData);
+
+      console.log(`Photo Added successfully!`, response);
+
+      toast.success("Photo Added successfully!");
+      setUploadedPicture(null);
+      setUploadedImage(null);
+    } catch (error) {
+      console.error(`Failed to add  photo`, error);
+      toast.error("Error Adding Photo");
+    }
+  };
+
+  //add condolence
+  const addCondolence = async () => {
+    const hasKeeper = memoryHasKeeper();
+    const isCustomMessage = hasKeeper && message.trim();
+    const finalMessage = isCustomMessage ? message : placeholderName;
+
+    const condolenceData = {
+      message: finalMessage,
+      isCustomMessage,
+      name,
+      relation,
+    };
+
+    try {
+      const response = await obituaryService.createCondolence(
+        data.id,
+        condolenceData
+      );
+
+      console.log(`Condolence Created successfully!`, response);
+
+      toast.success("Condolence Created Successfully");
+      emptyField("name");
+      emptyField("message");
+      emptyField("relation");
+      emptyField("placeholderName");
+    } catch (error) {
+      console.error(`Failed to create Condolence`, error);
+      toast.error("Error Creating Condolence");
+    }
+  };
+  //checking Keeper
+  const memoryHasKeeper = () => {
+    return data?.Keepers?.length > 0;
+  };
 
   // Toggle function for each dropdown
   const togglePicker = (type) => {
-    console.log("button is clicked!!");
     setSelect(!select);
     setOpenPicker(openPicker === type ? null : type); // Close if already open
   };
-
+  const updateMemory = async (field, value) => {
+    console.log(field, value);
+    if (field !== "picture") {
+      if (!value.trim()) {
+        console.warn(`${field} text is empty`);
+        return;
+      }
+    }
+    const formData = new FormData();
+    formData.append(field, value);
+    console.log(formData);
+    try {
+      const response = await obituaryService.updateObituary(data.id, formData);
+      console.log(`${field} updated successfully!`, response);
+    } catch (error) {
+      console.error(`Failed to update ${field}:`, error);
+    }
+  };
   const [showHoursDropdown, setShowHoursDropdown] = useState(false);
   const [showMinutesDropdown, setShowMinutesDropdown] = useState(false);
 
@@ -52,7 +197,26 @@ const Modals = ({ select_id, set_Id, selectedImage }) => {
   const minutes = Array.from({ length: 4 }, (_, i) => i * 15);
 
   const [selectMusic, setSelectMusic] = useState("");
+  const [user, setUser] = useState(null);
+  //get current user
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
 
+    setUploadedPicture(file);
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setUploadedImage(e.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
   const customButtonData = [
     {
       placeholder: "Spremeni osmrtnico",
@@ -216,6 +380,7 @@ const Modals = ({ select_id, set_Id, selectedImage }) => {
   };
 
   const [placeholderName, setPlaceholderName] = useState("");
+
   const [isSelectedRelegion, setIsSelectedReligion] = useState("");
   return (
     <div className="w-full bg-[#E1E6EC] py-8 px-[12px] mobile:px-[8px] rounded-2xl border-[1px] border-[#6D778E] ">
@@ -313,7 +478,10 @@ const Modals = ({ select_id, set_Id, selectedImage }) => {
             Prikazan bo v seznamu osmrtnic in na spominski strani.
           </div>
           <div className="mobile:w-[100%] w-[254px] mt-6">
-            <ButtonBlueBorder placeholder={"Objavi"} />
+            <ButtonBlueBorder
+              placeholder={"Objavi"}
+              onClick={() => updateMemory("symbol", isSelectedRelegion)}
+            />
           </div>
         </div>
       ) : null}
@@ -326,12 +494,21 @@ const Modals = ({ select_id, set_Id, selectedImage }) => {
             Dodaj glavno sliko za osmrtnico
           </div>
           <div className="mt-6 mobile:mt-4">
-            <Image
-              src={add_photo_place}
-              alt="place photo"
-              width={85}
-              height={120}
-            />
+            {uploadedImage ? (
+              <Image
+                src={uploadedImage}
+                alt="place photo"
+                width={85}
+                height={120}
+              />
+            ) : (
+              <Image
+                src={add_photo_place}
+                alt="place photo"
+                width={85}
+                height={120}
+              />
+            )}
           </div>
           <div className="flex mt-6 ">
             <div
@@ -340,10 +517,30 @@ const Modals = ({ select_id, set_Id, selectedImage }) => {
               }
             >
               <div className=" flex mobile:hidden">
-                <ButtonBlue placeholder={"Poišči sliko in jo prenesi"} />
+                <ButtonBlue
+                  placeholder={"Poišči sliko in jo prenesi"}
+                  isFor="upload-button"
+                />
+                <input
+                  id="upload-button"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageUpload}
+                />
               </div>
               <div className="hidden mobile:flex">
-                <ButtonBlue placeholder={"Izberi sliko in jo prenesi"} />
+                <ButtonBlue
+                  placeholder={"Izberi sliko in jo prenesi"}
+                  isFor="upload-button"
+                />
+                <input
+                  id="upload-button"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageUpload}
+                />
               </div>
               <div className="text-[#939393] font-normal text-xs mt-3 self-center ">
                 Format: jpg, png, webp
@@ -351,7 +548,12 @@ const Modals = ({ select_id, set_Id, selectedImage }) => {
             </div>
           </div>
           <div className="mobile:w-[100%] w-[254px] mt-8">
-            <ButtonBlueBorder placeholder={"Objavi"} />
+            <ButtonBlueBorder
+              placeholder={"Objavi"}
+              onClick={() => {
+                updateMemory("picture", uploadedPicture);
+              }}
+            />
           </div>
         </div>
       ) : null}
@@ -375,6 +577,11 @@ const Modals = ({ select_id, set_Id, selectedImage }) => {
                 "Sporočamo žalostno vest, da je nas je v 76. letu starosti zapustil naša predragi Mario Danilo Primo. Vsi njegovi. "
               }
               height={"191px"}
+              value={obituaryText}
+              onChange={(e) => {
+                console.log(e.target.value);
+                setObituaryText(e.target.value);
+              }}
             />
           </div>
           <div className="hidden mobile:flex mt-6 h-[306px] ">
@@ -383,10 +590,16 @@ const Modals = ({ select_id, set_Id, selectedImage }) => {
                 "Sporočamo žalostno vest, da je nas je v 76. letu starosti zapustil naša predragi Mario Danilo Primo. Vsi njegovi. "
               }
               height={"306px"}
+              value={obituaryText}
+              onChange={(e) => setObituaryText(e.target.value)}
             />
           </div>
+
           <div className="w-[254px] mobile:w-[100%] mt-[42px]">
-            <ButtonBlueBorder placeholder={"Objavi"} />
+            <ButtonBlueBorder
+              placeholder={"Objavi"}
+              onClick={() => updateMemory("obituary", obituaryText)}
+            />
           </div>
         </div>
       ) : null}
@@ -408,7 +621,6 @@ const Modals = ({ select_id, set_Id, selectedImage }) => {
           <div className="text-[#1E2125] text-[14px] leading-[24px] font-variation-customOpt14  font-normal mt-[32px] ">
             DATUM
           </div>
-
 
           <div className="flex flex-row mobile:gap-x-[11px] gap-x-[32px] gap-y-[8px] flex-wrap">
             <ModalDropBox
@@ -623,10 +835,18 @@ const Modals = ({ select_id, set_Id, selectedImage }) => {
             <DescriptionFieldComp
               placeholder={"Omejitev je 60 znakov."}
               height={"80px"}
+              value={verse}
+              onChange={(e) => {
+                console.log(e.target.value);
+                setVerse(e.target.value);
+              }}
             />
           </div>
           <div className="mobile:w-[100%] w-[254px] mt-8">
-            <ButtonBlueBorder placeholder={"Objavi"} />
+            <ButtonBlueBorder
+              placeholder={"Objavi"}
+              onClick={() => updateMemory("verse", verse)}
+            />
           </div>
         </div>
       ) : null}
@@ -863,7 +1083,7 @@ const Modals = ({ select_id, set_Id, selectedImage }) => {
           </div>
 
           <div className="mt-[22px]">
-            <TextFieldComp placeholder={placeholderName} />
+            <TextFieldComp placeholder={placeholderName} readOnly />
           </div>
 
           <div className="text-[14px] leading-[20px] font-variation-customOpt14 text-[#1E2125] mt-[32px]">
@@ -876,6 +1096,12 @@ const Modals = ({ select_id, set_Id, selectedImage }) => {
                 "Napiši poljubno sožalje (do 250 znakov) \n( bo povozilo prejšnjo izbiro ). \nČe pustiš prazno, bo objavljeno izbrano sožalje zgoraj. "
               }
               height={"134px"}
+              readOnly={!memoryHasKeeper()}
+              value={message}
+              onChange={(e) => {
+                console.log(e.target.value);
+                setMessage(e.target.value);
+              }}
             />
           </div>
 
@@ -885,15 +1111,29 @@ const Modals = ({ select_id, set_Id, selectedImage }) => {
           </div>
 
           <div className="mt-[12px]">
-            <TextFieldComp placeholder={"Napiši svoje ime ali vzdevek"} />
+            <TextFieldComp
+              placeholder={"Napiši svoje ime ali vzdevek"}
+              value={name}
+              onChange={(e) => {
+                console.log(e.target.value);
+                setName(e.target.value);
+              }}
+            />
           </div>
 
           <div className="mt-[12px]">
-            <TextFieldComp placeholder={"Dodaj še povezavo (ni obvezno)"} />
+            <TextFieldComp
+              placeholder={"Dodaj še povezavo (ni obvezno)"}
+              value={relation}
+              onChange={(e) => {
+                console.log(e.target.value);
+                setRelation(e.target.value);
+              }}
+            />
           </div>
 
           <div className="mt-[32px] w-[254px]">
-            <ButtonBlueBorder placeholder={"Objavi"} />
+            <ButtonBlueBorder placeholder={"Objavi"} onClick={addCondolence} />
           </div>
 
           <div className="mt-[22px] flex flex-col text-[13px] leading-[20px] font-variation-customOpt12 text-[#6D778E] mobile:hidden">
@@ -932,7 +1172,10 @@ const Modals = ({ select_id, set_Id, selectedImage }) => {
 
           <div className="mt-[32px]">
             {/* 23 October 2024 */}
-            <ButtonBlue placeholder={"Izberi sliko in jo prenesi"} isFor="Moj Račun" />
+            <ButtonBlue
+              placeholder={"Izberi sliko in jo prenesi"}
+              isFor="Moj Račun"
+            />
           </div>
 
           <div className="mt-[32px] mobile:text-[13px] text-[#6D778E] mobile:leading-[20px] mobile:font-[400px]">
@@ -1091,21 +1334,37 @@ const Modals = ({ select_id, set_Id, selectedImage }) => {
                 "flex flex-col rounded-[6px] bg-[#F2F8FF66] shadow-custom-dark-to-white w-full py-7 px-[80px] mobile:px-5 items-center justify-center "
               }
             >
-              <ButtonBlue placeholder={"Izberi sliko in jo prenesi"} />
+              <ButtonBlue
+                placeholder={
+                  uploadedImage
+                    ? uploadedPicture.name
+                    : "Izberi sliko in jo prenesi"
+                }
+                isFor="upload-button"
+              />
+              <input
+                id="upload-button"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpload}
+              />
               <div className="text-[#939393] font-normal text-xs mt-3 self-center ">
                 Format: jpg, png, webp
               </div>
             </div>
           </div>
-          <div className="flex mt-4 items-center">
-            <Image src={plus_icon} alt="imgCall" className="w-4 h-4 " />
-            <div className=" text-[#1E2125] text-sm ml-2">
-              {"Dodaj še eno sliko".toUpperCase()}
+          {false && (
+            <div className="flex mt-4 items-center">
+              <Image src={plus_icon} alt="imgCall" className="w-4 h-4 " />
+              <div className=" text-[#1E2125] text-sm ml-2">
+                {"Dodaj še eno sliko".toUpperCase()}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="mobile:w-[100%] w-[254px] mt-6">
-            <ButtonBlueBorder placeholder={"Objavi"} />
+            <ButtonBlueBorder placeholder={"Objavi"} onClick={addPhoto} />
           </div>
         </div>
       ) : null}
@@ -1123,10 +1382,20 @@ const Modals = ({ select_id, set_Id, selectedImage }) => {
               placeholder={
                 "Napiši naslov, npr  Posvetilo, Zadnji pozdrav, Zahvala, Nepozabni trenutki, Dragi..."
               }
+              value={title}
+              onChange={(e) => {
+                setTitle(e.target.value);
+              }}
             />
           </div>
           <div className=" hidden mobile:flex mt-[24px]">
-            <TextFieldComp placeholder={"Napiši naslov"} />
+            <TextFieldComp
+              placeholder={"Napiši naslov"}
+              value={title}
+              onChange={(e) => {
+                setTitle(e.target.value);
+              }}
+            />
           </div>
           <div className="hidden mobile:flex mt-6 text-[14px] font-normal text-[#6D778E] ">
             npr Posvetilo, Zadnji pozdrav, Zahvala, Nepozabni trenutki, Dragi...
@@ -1135,6 +1404,19 @@ const Modals = ({ select_id, set_Id, selectedImage }) => {
             <DescriptionFieldComp
               placeholder={"Dodaj tekst. Omejitev je 10.000 znakov."}
               height={"170px"}
+              value={message}
+              onChange={(e) => {
+                setMessage(e.target.value);
+              }}
+            />
+          </div>
+          <div className="mt-[24px] flex mobile:hidden">
+            <TextFieldComp
+              placeholder={"Napiši svoje"}
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+              }}
             />
           </div>
           <div className="mobile:w-[100%] w-[254px] mt-[24px]">
@@ -1142,10 +1424,27 @@ const Modals = ({ select_id, set_Id, selectedImage }) => {
               <DescriptionFieldComp
                 placeholder={`Dodaj tekst.${"\n"}Omejitev je 10.000 znakov.`}
                 height={"423px"}
+                value={message}
+                onChange={(e) => {
+                  setMessage(e.target.value);
+                }}
               />
             </div>
+            <div className=" hidden mobile:flex mt-[24px]">
+              <TextFieldComp
+                placeholder={"Napiši svoje"}
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                }}
+              />
+            </div>
+
             <div className="mobile:w-[100%] w-[254px] mt-[24px]">
-              <ButtonBlueBorder placeholder={"Objavi"} />
+              <ButtonBlueBorder
+                placeholder={"Objavi"}
+                onClick={addDedication}
+              />
             </div>
           </div>
         </div>
@@ -1258,7 +1557,13 @@ const Modals = ({ select_id, set_Id, selectedImage }) => {
           </div>
 
           <div className="mt-[22px]">
-            <TextFieldCompSixtyHeight placeholder={"Dodaj svoje ime *"} />
+            <TextFieldCompSixtyHeight
+              placeholder={"Dodaj svoje ime *"}
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+              }}
+            />
           </div>
 
           <div className="text-[13px] leading-[24px] mt-[6px] whitespace-nowrap overflow-hidden text-ellipsis font-variation-customOpt12 text-[#6D778E]">
@@ -1268,6 +1573,10 @@ const Modals = ({ select_id, set_Id, selectedImage }) => {
           <div className="mt-[6px]">
             <TextFieldCompSixtyHeight
               placeholder={"Dodaj povezavo s pokojnim/no "}
+              value={relation}
+              onChange={(e) => {
+                setRelation(e.target.value);
+              }}
             />
           </div>
 
@@ -1276,7 +1585,7 @@ const Modals = ({ select_id, set_Id, selectedImage }) => {
           </div>
 
           <div className="mt-[22px]">
-            <ButtonBlueBorder placeholder={"Objavi"} />
+            <ButtonBlueBorder placeholder={"Objavi"} onClick={addSorrowBook} />
           </div>
         </div>
       ) : null}
@@ -1285,9 +1594,14 @@ const Modals = ({ select_id, set_Id, selectedImage }) => {
         <div className="flex flex-col w-full">
           <div className="rounded-md self-center mb-[10px]">
             <Image
-              src={user6}
-              alt="mario_danilo_primo"
-              className="rounded-md w-[97px] aspect-[3.5/4.5]"
+              src={
+                data.image
+                  ? `${API_BASE_URL}/${data.image}`
+                  : "/add_photo_place.png"
+              }
+              alt=" photo"
+              width={85}
+              height={85}
             />
           </div>
 
@@ -1295,7 +1609,7 @@ const Modals = ({ select_id, set_Id, selectedImage }) => {
             className="text-[#1E2125] mobile:text-nowrap text-[36px] mt-[32px] leading-[42px] font-variation-customOpt36 mobile:font-variation-customOpt24 text-center font-light mobile:text-[24px] 
                 "
           >
-            Mario Danilo Primo
+            {data.name}
           </div>
 
           <div
@@ -1306,7 +1620,7 @@ const Modals = ({ select_id, set_Id, selectedImage }) => {
           </div>
 
           <div className="flex w-full mt-8 flex-col px-[20px] mobile:px-0">
-            {nameData.map((item, index) => (
+            {data.SorrowBooks.map((item, index) => (
               <CommonStyle item={item} index={index} key={index} />
             ))}
           </div>
@@ -1444,7 +1758,15 @@ function CommonStyle({ item, index, key }) {
            : " border-[#B9D1DF] bg-gradient-to-r from-[#B9D1DF40] to-[#FFFFFF30"
        } w-11 h-11 ml-8 mobile:ml-4 rounded-full text-center`}
       >
-        {item.smallName}
+        {(() => {
+          const nameParts = item.name.split(" ");
+          const initials =
+            nameParts.length > 1
+              ? nameParts[0].substring(0, 2)
+              : item.name[0] + item.name[item.name.length - 1];
+
+          return initials.toUpperCase();
+        })()}
       </div>
 
       <div className="text-[16px] mobile:absolute whitespace-nowrap text-[#000000] font-variation-customOpt16 font-light ml-[31.5px] mobile:left-[7px] mobile:ml-[7px]">
