@@ -48,13 +48,13 @@ const PersonList = ({ currentSlide, setCurrentSlide, persons }) => {
   const [visibleIndices, setVisibleIndices] = useState([0, 1]);
   const [visibleIndicesDesktop, setVisibleIndicesDesktop] = useState([0, 2]);
   const handleNextTablet = () => {
-    if (currentSlide < persons.length - 2) {
+    if (currentSlide < persons.length - 1) {
       setCurrentSlide(currentSlide + 1);
     }
   };
 
   const handleNextDesktop = () => {
-    if (currentSlide < persons.length - 3) {
+    if (currentSlide < persons.length - 1) {
       setCurrentSlide(currentSlide + 1);
     }
   };
@@ -156,7 +156,7 @@ const PersonList = ({ currentSlide, setCurrentSlide, persons }) => {
         <button
           onClick={handleNextDesktop}
           className={`desktop:flex hidden absolute -right-[30px] ${
-            currentSlide + 3 === persons.length - 1 ? "hidden" : ""
+            currentSlide === persons.length - 1 ? "hidden" : ""
           }`}
         >
           <img
