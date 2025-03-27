@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import rightImg from "../../../public/right.png";
 import crossImage from "../../../public/cross.png";
 import filter from "../../../public/ico_sand_clock2.png";
@@ -7,6 +7,8 @@ import Image from "next/image";
 import { FaAngleRight } from "react-icons/fa6";
 import { AiOutlineExport } from "react-icons/ai";
 import danger from "../../../public/danger.png";
+import obituaryService from "@/services/obituary-service";
+import { toast } from "react-hot-toast";
 
 const PostConfirmation = () => {
   const [isTableVisible, setIsTableVisible] = useState(false);
@@ -14,7 +16,7 @@ const PostConfirmation = () => {
   const toggleTableVisibility = () => {
     setIsTableVisible((prev) => !prev);
   };
-
+  const [posts, setPosts] = useState([]);
   const mockData = [
     {
       title: "Mary ",
@@ -82,7 +84,67 @@ const PostConfirmation = () => {
       imageSrc: danger,
     },
   ];
+  useEffect(() => {
+    fetchPendingPosts();
+  }, []);
 
+  const fetchPendingPosts = async () => {
+    try {
+      const response = await obituaryService.fetchPendingPosts();
+
+      if (response.error) {
+        toast.error(
+          response.error || "Something went wrong. Please try again!"
+        );
+        return;
+      }
+
+      setPosts(response);
+    } catch (err) {
+      console.error("Error Fetching Pending Posts:", err);
+      toast.error(err.message || "Failed To Pending Posts:");
+    }
+  };
+
+  const approvePost = async (interactionId, type, logId) => {
+    try {
+      const postData = {
+        interactionId: interactionId,
+        type: type,
+        action: "approved",
+        logId: logId,
+      };
+      const response = await obituaryService.changePostStatus(postData);
+
+      if (response.error) {
+        toast.error(
+          response.error || "Something went wrong. Please try again!"
+        );
+        return;
+      }
+      toast.success("Post Approved");
+      console.log(response);
+    } catch (err) {
+      console.error("Error Fetching Pending Posts:", err);
+      toast.error(err.message || "Failed To Pending Posts:");
+    }
+  };
+
+  const formatDate = (timestamp) => {
+    const date = timestamp ? new Date(timestamp) : new Date();
+    return date.toLocaleString("sl-SI", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+  };
+  const formatTime = (timestamp) => {
+    const date = timestamp ? new Date(timestamp) : new Date();
+    return date.toLocaleString("sl-SI", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
   return (
     <>
       <div className="tabletUserAcc:hidden mobileUserAcc:hidden flex flex-col mt-[86px] tabletUserAcc:mt-[46px] gap-y-5 mobileUserAcc:gap-y-3 mobileUserAcc:mt-[27px] desktopUserAcc:pr-[40px] pr-0 ">
@@ -148,7 +210,7 @@ const PostConfirmation = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {mockData.map((item, index) => (
+                  {posts?.map((item, index) => (
                     <tr
                       key={index}
                       className="border border-[#0D94E8] rounded-[4px] bg-[#fff]"
@@ -156,9 +218,9 @@ const PostConfirmation = () => {
                       <td className="w-[250px] text-[#0D94E8] text-[16px] font-normal  p-4  leading-[19px] font-variation-customOpt18 border-t border-b border-l rounded-l border-[#0D94E8]">
                         <div className="flex items-center justify-arounds">
                           <span className="flex flex-col text-[14px] text-[#6D778E] font-normal">
-                            {item.title}
+                            {item?.Obituary?.name}
                             <span className="text-[16px] font-normal text-[#3C3E41]">
-                              {item.titlespan}
+                              {item?.Obituary?.sirName}
                             </span>
                           </span>
                           <FaAngleRight className="ml-2 w-[24px] h-[24px] text-[#6D778E]" />
@@ -168,9 +230,9 @@ const PostConfirmation = () => {
                         <div className="flex items-center justify-arounds">
                           <AiOutlineExport className="ml-2 w-[24px] h-[24px] text-[#6D778E] mr-4" />
                           <span className="flex flex-col text-[#6D778E]">
-                            {item.OpenText}
+                            Anonymous
                             <span className="text-[14px] font-medium text-[#3C3E41]">
-                              {item.spanText}
+                              {item?.type}
                             </span>
                           </span>
                         </div>
@@ -178,23 +240,30 @@ const PostConfirmation = () => {
                       <td className="w-[180px] p-4 border-t border-b border-[#0D94E8]">
                         <div className="flex items-center">
                           <span className="text-[#6D778E] text-[14px] flex flex-col">
-                            {item.time}
+                            {formatTime(item?.createdTimestamp)}
                             <span className="text-[14px] font-medium text-[#3C3E41]">
-                              {item.date}
+                              {formatDate(item?.createdTimestamp)}
                             </span>
                           </span>
                         </div>
                       </td>
                       <td className="p-4 border-t border-b border-[#0D94E8]">
                         <div
-                          className="w-[48px] h-[48px] flex items-center justify-center shadow-lg rounded-[8px]"
+                          className="w-[48px] cursor-pointer h-[48px] flex items-center justify-center shadow-lg rounded-[8px]"
                           style={{
                             background:
                               "linear-gradient(135deg, #E3E8EC, #FFFFFF)",
                           }}
+                          onClick={() =>
+                            approvePost(
+                              item?.interactionId,
+                              item?.type,
+                              item?.id
+                            )
+                          }
                         >
                           <Image
-                            src={item.imageSrc}
+                            src={rightImg}
                             alt={item.message}
                             className="w-[21px] h-[21px]"
                           />
@@ -202,29 +271,29 @@ const PostConfirmation = () => {
                       </td>
                       <td className="p-4 border-t border-b border-[#0D94E8]">
                         <div
-                          className="w-[48px] h-[48px] flex items-center justify-center shadow-lg rounded-[8px]"
+                          className="w-[48px] cursor-pointer h-[48px] flex items-center justify-center shadow-lg rounded-[8px]"
                           style={{
                             background:
                               "linear-gradient(135deg, #E3E8EC, #FFFFFF)",
                           }}
                         >
                           <Image
-                            src={item.imageSrc2}
+                            src={crossImage}
                             alt={item.message}
                             className="w-[21px] h-[21px]"
                           />
                         </div>
                       </td>
-                      <td className="w-[60px] p-4 border-t border-b border-[#0D94E8]">
+                      <td className="w-[60px]  p-4 border-t border-b border-[#0D94E8]">
                         <div
-                          className="w-[48px] h-[48px] flex items-center justify-center shadow-lg rounded-[8px]"
+                          className="w-[48px] cursor-pointer h-[48px] flex items-center justify-center shadow-lg rounded-[8px]"
                           style={{
                             background:
                               "linear-gradient(135deg, #E3E8EC, #FFFFFF)",
                           }}
                         >
                           <Image
-                            src={item.imageSrc3}
+                            src={danger}
                             alt={item.message}
                             className="w-[21px] h-[21px]"
                           />
@@ -233,7 +302,7 @@ const PostConfirmation = () => {
                       <td className="pl-[60px] w-[135px] border-t border-b border-r rounded-r border-[#0D94E8] bg-[#Fff]">
                         <div className="w-[48px] h-[48px] flex items-center justify-center">
                           <Image
-                            src={item.imageSrc4}
+                            src={filter}
                             alt={item.message}
                             className="w-[21px] h-[21px]"
                           />
@@ -252,20 +321,26 @@ const PostConfirmation = () => {
             <div className="overflow-x-auto">
               <table className="min-w-full border-separate border-spacing-y-[10px] border-spacing-x-[0px]">
                 {/* 25 October 2024 */}
-                <th style={{
-                  fontVariationSettings: "'wdth' 50,'wght' 600,'opsz' 20",
-                }} 
-                className="text-[20px] leading-[23px] font-semibold text-[#0A85C2] text-left">
-                  Prejšnje potrditve
-                </th>
-                <th className="uppercase px-4 py-2 text-[14px] font-semibold text-[#3c3e41] text-left"></th>
-                <th className="uppercase px-4 py-2 text-[14px] font-semibold text-[#3c3e41] text-left"></th>
-                <th className="uppercase px-4 py-2 text-[14px] font-semibold text-[#3c3e41] text-left"></th>
-                <th className="uppercase px-4 py-2 text-[14px] font-semibold text-[#3c3e41] text-left"></th>
-                <th className="uppercase px-4 py-2 text-[14px] font-semibold text-[#3c3e41] text-left"></th>
-                <th className=" uppercase  text-[14px] font-semibold text-[#3c3e41] text-left">
-                  STATUS
-                </th>
+                <thead>
+                  <tr>
+                    <th
+                      style={{
+                        fontVariationSettings: "'wdth' 50,'wght' 600,'opsz' 20",
+                      }}
+                      className="text-[20px] leading-[23px] font-semibold text-[#0A85C2] text-left"
+                    >
+                      Prejšnje potrditve
+                    </th>
+                    <th className="uppercase px-4 py-2 text-[14px] font-semibold text-[#3c3e41] text-left"></th>
+                    <th className="uppercase px-4 py-2 text-[14px] font-semibold text-[#3c3e41] text-left"></th>
+                    <th className="uppercase px-4 py-2 text-[14px] font-semibold text-[#3c3e41] text-left"></th>
+                    <th className="uppercase px-4 py-2 text-[14px] font-semibold text-[#3c3e41] text-left"></th>
+                    <th className="uppercase px-4 py-2 text-[14px] font-semibold text-[#3c3e41] text-left"></th>
+                    <th className=" uppercase  text-[14px] font-semibold text-[#3c3e41] text-left">
+                      STATUS
+                    </th>
+                  </tr>
+                </thead>
                 <tbody>
                   {tabelData.map((item, index) => (
                     <tr
@@ -354,7 +429,14 @@ const PostConfirmation = () => {
       <div className="desktopUserAcc:hidden">
         <div className="text-[14px] text-[#6D778E] mobileUserAcc:text-nowrap font-medium text-right mt-[50px]">
           {/* 25 October 2024 */}
-          <p style={{fontVariationSettings: "'wdth' 75, 'opsz' 14, 'wght' 400"}} className="leading-[16px]">Prispevek drugih moraš potrditi, sicer ne bo objavljen </p>
+          <p
+            style={{
+              fontVariationSettings: "'wdth' 75, 'opsz' 14, 'wght' 400",
+            }}
+            className="leading-[16px]"
+          >
+            Prispevek drugih moraš potrditi, sicer ne bo objavljen{" "}
+          </p>
         </div>
         <div className="w-full border-t border-[#000000] border-opacity-50 mobileUserAcc:hidden"></div>
 
@@ -528,27 +610,33 @@ const PostConfirmation = () => {
 
         <div className="mobileUserAcc:hidden overflow-x-auto mt-[100px]">
           {/* 25 October 2024 */}
-          <div style={{
-                  fontVariationSettings: "'wdth' 50,'wght' 600,'opsz' 20",
-                }} 
-           className="text-[20px] font-semibold text-[#0A85C2] text-left">
+          <div
+            style={{
+              fontVariationSettings: "'wdth' 50,'wght' 600,'opsz' 20",
+            }}
+            className="text-[20px] font-semibold text-[#0A85C2] text-left"
+          >
             Prejšnje potrditve
           </div>
           <div className="overflow-x-auto">
             <div className="overflow-x-auto border-[#0A85C2]">
               <table className="min-w-full border-separate border-spacing-y-[10px] border-spacing-x-[0px]">
-                <th className="w-[200px] uppercase px-4 py-2 text-[14px] font-semibold text-[#3c3e41] text-left">
-                  Spominska
-                </th>
-                <th className="w-[350px] uppercase px-4 py-2 text-[14px]  font-semibold text-[#3c3e41] text-center">
-                  kdo i kaj
-                </th>
-                <th className="w-[280px] uppercase px-4 py-2 text-[14px] font-semibold text-[#3c3e41] text-left">
-                  datum
-                </th>
-                <th className="w-[80px] uppercase px-4 py-2 text-[14px] font-semibold text-[#3c3e41] text-left">
-                  STATUS
-                </th>
+                <thead>
+                  <tr>
+                    <th className="w-[200px] uppercase px-4 py-2 text-[14px] font-semibold text-[#3c3e41] text-left">
+                      Spominska
+                    </th>
+                    <th className="w-[350px] uppercase px-4 py-2 text-[14px]  font-semibold text-[#3c3e41] text-center">
+                      kdo i kaj
+                    </th>
+                    <th className="w-[280px] uppercase px-4 py-2 text-[14px] font-semibold text-[#3c3e41] text-left">
+                      datum
+                    </th>
+                    <th className="w-[80px] uppercase px-4 py-2 text-[14px] font-semibold text-[#3c3e41] text-left">
+                      STATUS
+                    </th>
+                  </tr>
+                </thead>
                 <tbody>
                   {tabelData.map((item, index) => (
                     <tr
@@ -609,7 +697,6 @@ const PostConfirmation = () => {
               className="text-[20px] tabletUserAcc:text-[20px] text-[#0A85C2] font-semibold rounded-lg bg-white h-[60px] flex  justify-between items-center p-1 desktopUserAcc:bg-transparent tabletUserAcc:bg-transparent tabletUserAcc:border-none desktopUserAcc:border-none w-full"
               onClick={toggleTableVisibility}
             >
-             
               {/* 24 October 2024 */}
               {/* 25 October 2024 */}
               <span

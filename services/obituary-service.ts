@@ -86,9 +86,14 @@ const createSorrowBook = async (id: string, data: any) => {
     const endpoint = `/sorrow-book/${id}`;
     const response = await axios.post(endpoint, data);
     return response.data;
-  } catch (error: unknown) {
-    console.error("Error updating obituary:", error);
-    throw new Error("Network error or no response");
+  } catch (error: any) {
+    if (error.response) {
+      console.error("API Error:", error.response.data);
+      throw error.response;
+    } else {
+      console.error("Network error:", error);
+      throw new Error("Network error or no response");
+    }
   }
 };
 
@@ -98,9 +103,14 @@ const createDedication = async (id: string, data: any) => {
     const endpoint = `/dedication/${id}`;
     const response = await axios.post(endpoint, data);
     return response.data;
-  } catch (error: unknown) {
-    console.error("Error updating obituary:", error);
-    throw new Error("Network error or no response");
+  } catch (error: any) {
+    if (error.response) {
+      console.error("API Error:", error.response.data);
+      throw error.response;
+    } else {
+      console.error("Network error:", error);
+      throw new Error("Network error or no response");
+    }
   }
 };
 
@@ -129,6 +139,57 @@ const createCondolence = async (id: string, data: any) => {
     throw new Error("Network error or no response");
   }
 };
+
+// burn candle
+const burnCandle = async (id: string, data: any) => {
+  try {
+    const endpoint = `/candle/${id}`;
+    const response = await axios.post(endpoint, data);
+    return response.data;
+  } catch (error: any) {
+    if (error.response) {
+      console.error("API Error:", error.response.data);
+      throw error.response;
+    } else {
+      console.error("Network error:", error);
+      throw new Error("Network error or no response");
+    }
+  }
+};
+//fetch pending posts
+const fetchPendingPosts = async () => {
+  try {
+    const endpoint = `/obituary/pending-data`;
+    const response = await axios.get(endpoint);
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response) {
+      console.error("API Error:", error.response.data);
+      throw error.response;
+    } else {
+      console.error("Network error:", error);
+      throw new Error("Network error or no response");
+    }
+  }
+};
+//change post status
+const changePostStatus = async (data: any) => {
+  try {
+    const endpoint = `/post`;
+    const response = await axios.post(endpoint, data);
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response) {
+      console.error("API Error:", error.response.data);
+      throw error.response;
+    } else {
+      console.error("Network error:", error);
+      throw new Error("Network error or no response");
+    }
+  }
+};
 const obituaryService = {
   createObituary,
   getObituary,
@@ -140,6 +201,9 @@ const obituaryService = {
   createDedication,
   addPhoto,
   createCondolence,
+  burnCandle,
+  fetchPendingPosts,
+  changePostStatus,
 };
 
 export default obituaryService;

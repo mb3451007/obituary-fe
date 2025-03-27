@@ -18,6 +18,7 @@ export default function ModalLibrary({
   set_Id,
   selectedImage,
   data,
+  updateObituary,
 }) {
   const [scrollBehavior, setScrollBehavior] = React.useState("outside");
 
@@ -53,6 +54,7 @@ export default function ModalLibrary({
                 set_Id={set_Id}
                 selectedImage={selectedImage}
                 data={data}
+                updateObituary={updateObituary}
               />
             </div>
           </div>

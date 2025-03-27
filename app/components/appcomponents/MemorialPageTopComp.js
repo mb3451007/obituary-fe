@@ -4,7 +4,9 @@ import React, { useEffect, useState } from "react";
 import { format } from "date-fns";
 import toast from "react-hot-toast";
 
-const MemorialPageTopComp = ({ set_Id, setModal, data }) => {
+import obituaryService from "@/services/obituary-service";
+
+const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
   const [currentURL, setCurrentURL] = useState("");
   const [user, setUser] = useState(null);
 
@@ -23,10 +25,6 @@ const MemorialPageTopComp = ({ set_Id, setModal, data }) => {
   }, []);
 
   const parsedEvents = data?.events ? data.events : [];
-
-  useEffect(() => {
-    console.log(data?.events);
-  }, [data]);
 
   const handleCopyURL = () => {
     navigator.clipboard
@@ -62,7 +60,42 @@ const MemorialPageTopComp = ({ set_Id, setModal, data }) => {
       )
       .join(" ");
   };
+  const burnCandle = async () => {
+    const candleData = {
+      userId: user?.id || null,
+    };
 
+    try {
+      const response = await obituaryService.burnCandle(data.id, candleData);
+
+      toast.success("Candle Burnt Successfully");
+      set_Id("3");
+      setModal("true");
+      const updatedCandles = [
+        {
+          ...data.candles[0],
+          totalCandles: (data.candles[0]?.totalCandles || 0) + 1,
+          lastBurnedCandleTime: new Date().toISOString(),
+        },
+        ...data.candles.slice(1),
+      ];
+
+      updateObituary({
+        ...data,
+        candles: updatedCandles,
+      });
+    } catch (error) {
+      console.error("Failed to burn candle:", error);
+
+      if (error.status === 409) {
+        toast.error("You can only burn one candle per 24 hours.");
+      } else {
+        toast.error(
+          error.data?.message || "Error burning candle. Please try again."
+        );
+      }
+    }
+  };
   return (
     <div className="flex flex-col w-full  items-center  justify-center">
       <div
@@ -280,7 +313,7 @@ const MemorialPageTopComp = ({ set_Id, setModal, data }) => {
                   {/* <div className="flex h-[79px] desktop:h-[71px] bg-yellow-400"> */}
                   <div className="flex desktop:pb-[20px] pb-[15px] ">
                     <p className="text-[#414141] text-[16px] font-variation-customOpt16 font-normal leading-6 ">
-                      {data.obituary || "N/A"}
+                      {data?.obituary || "N/A"}
                     </p>
                   </div>
                 </div>
@@ -542,18 +575,17 @@ const MemorialPageTopComp = ({ set_Id, setModal, data }) => {
                       Prižgi svečko v spomin
                     </div>
                     <div className="hidden tablet:flex desktop:flex text-[12px] text-[#1E2125] font-normal mt-[10px]">
-                      Skupno ta teden: 0
+                      Skupno ta teden: {data?.totalVisits}
                     </div>
                     <div className="flex tablet:hidden desktop:hidden self-end text-[12px] text-[#1E2125] font-normal mt-[-10px] ">
-                      Skupno ta teden: {data.currentWeekVisits}
+                      Skupno ta teden: {data?.currentWeekVisits}
                     </div>
                   </div>
                   <div className="bg-[#D4D4D4] h-[1px]  w-[100%] mt-4 " />
                   <div className="flex  mt-[18px] tablet:mt-[15px] mb-[25px] desktop:mt-[15px] justify-between pl-0 tablet:pl-[10px] desktop:pl-[15px]">
                     <div
                       onClick={() => {
-                        set_Id("3");
-                        setModal(true);
+                        burnCandle();
                       }}
                       className="flex cursor-pointer h-[62px] w-[62px] items-center justify-center border-[2px] border-[#B9DFF2] rounded-full bg-white"
                     >
@@ -568,7 +600,7 @@ const MemorialPageTopComp = ({ set_Id, setModal, data }) => {
                     <div className="flex flex-col mt-[5px]  tablet:mt-0 desktop:mt-0">
                       <div className="flex h-6 tablet:h-[40px] desktop:h-[36px] justify-end">
                         <p className="text-[#1E2125] text-[16px] font-variation-customOpt16 font-normal ">
-                          Skupno svečk: {data.totalCandles}
+                          Skupno svečk: {data?.candles?.[0]?.totalCandles || 0}
                         </p>
                       </div>
                       <div className="flex h-[29px] tablet:h-[40]  desktop:h-[40px]">
@@ -744,32 +776,6 @@ const MemorialPageTopComp = ({ set_Id, setModal, data }) => {
           </div>
         </div>
       </div>
-
-      <div className="ml-auto mr-[14px] mb-10 desktop:mr-[18%] flex items-center">
-        <Image
-          src={"/round_add.png"}
-          alt="Description of the image"
-          width={100}
-          height={100}
-          className="w-[12px] h-[12px] mr-[10px]"
-        />
-        <p className="text-[12px] text-[#414141] font-variation-customOpt12 font-normal">
-          Dodaj posvetilo
-        </p>
-      </div>
-
-      <div className="ml-auto mr-[14px] desktop:mr-[18%] flex items-center">
-        <Image
-          src={"/round_add.png"}
-          alt="Description of the image"
-          width={100}
-          height={100}
-          className="w-[12px] h-[12px] mr-[10px]"
-        />
-        <p className="text-[12px] text-[#414141] font-variation-customOpt12 font-normal">
-          Dodaj fotografije
-        </p>
-      </div>
     </div>
   );
 };
@@ -849,11 +855,11 @@ const Container = ({ index, item, key, onCircleClick }) => {
     >
       <div className="text-[20px] text-[#1E2125] font-normal ">
         {(() => {
-          const nameParts = item.name.split(" ");
+          const nameParts = item?.name?.split(" ");
           const initials =
             nameParts.length > 1
               ? nameParts[0].substring(0, 2)
-              : item.name[0] + item.name[item.name.length - 1];
+              : item?.name[0] + item?.name[item.name.length - 1];
 
           return initials.toUpperCase();
         })()}

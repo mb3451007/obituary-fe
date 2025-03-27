@@ -25,7 +25,7 @@ import { getYear, getMonth } from "date-fns"; // To extract year and month info
 import obituaryService from "@/services/obituary-service";
 import toast from "react-hot-toast";
 
-const Modals = ({ select_id, set_Id, selectedImage, data }) => {
+const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
   const musicList = [
     "BREZ glasbe",
     "Prva izbira",
@@ -56,7 +56,6 @@ const Modals = ({ select_id, set_Id, selectedImage, data }) => {
       title: setTitle,
       message: setMessage,
       name: setName,
-      placeholderName: setPlaceholderName,
     };
 
     if (setters[field]) {
@@ -64,6 +63,19 @@ const Modals = ({ select_id, set_Id, selectedImage, data }) => {
     }
   };
   const addSorrowBook = async () => {
+    if (!name || name.trim() === "") {
+      toast.error("Please enter a name before submitting.");
+      return;
+    }
+    if (!user) {
+      toast.error("You must log in to update.");
+      return;
+    }
+
+    if (!memoryHasKeeper()) {
+      toast.error("Current Memory has no keeper! You cannot proceed");
+      return;
+    }
     const sorrowBookData = {
       name,
       relation,
@@ -78,10 +90,20 @@ const Modals = ({ select_id, set_Id, selectedImage, data }) => {
       console.log(`Sorrow Book Created successfully!`, response);
       setName(null);
       setRelation(null);
+      const updatedSorrowBooks = [...data.SorrowBooks, response];
+      updateObituary({ ["SorrowBooks"]: updatedSorrowBooks });
       toast.success("Sorrow Book Created Successfully");
+      updateObituary();
     } catch (error) {
-      console.error(`Failed to create SorrowBook`, error);
-      toast.error("Error Creating Sorrow Book");
+      console.error("Failed to create SorrowBook:", error);
+
+      if (error.status === 409) {
+        toast.error("You are already in the Book of Sorrow.");
+      } else {
+        toast.error(
+          error.data?.message || "Error Creating Sorrow Book. Please try again."
+        );
+      }
     }
   };
 
@@ -89,6 +111,19 @@ const Modals = ({ select_id, set_Id, selectedImage, data }) => {
   const [title, setTitle] = useState(null);
   const [message, setMessage] = useState(null);
   const addDedication = async () => {
+    if (!title?.trim() || !message?.trim() || !name?.trim()) {
+      toast.error("Please fill in all required fields before submitting.");
+      return;
+    }
+    if (!user) {
+      toast.error("You must log in to update.");
+      return;
+    }
+
+    if (!memoryHasKeeper()) {
+      toast.error("Current Memory has no keeper! You cannot proceed");
+      return;
+    }
     const sorrowBookData = {
       title,
       message,
@@ -115,14 +150,26 @@ const Modals = ({ select_id, set_Id, selectedImage, data }) => {
 
   //add photo
   const addPhoto = async () => {
+    if (!user) {
+      toast.error("You must log in to update.");
+      return;
+    }
+
+    if (!memoryHasKeeper()) {
+      toast.error("Current Memory has no keeper! You cannot add photo");
+      return;
+    }
+    if (!uploadedPicture) {
+      toast.error("No image selected!");
+      return;
+    }
     const formData = new FormData();
     formData.append("picture", uploadedPicture);
     try {
       const response = await obituaryService.addPhoto(data.id, formData);
 
-      console.log(`Photo Added successfully!`, response);
-
-      toast.success("Photo Added successfully!");
+      console.log(`Photo Sent to Keeper for review!`, response);
+      toast.success("Photo Sent to Keeper for review!");
       setUploadedPicture(null);
       setUploadedImage(null);
     } catch (error) {
@@ -133,8 +180,22 @@ const Modals = ({ select_id, set_Id, selectedImage, data }) => {
 
   //add condolence
   const addCondolence = async () => {
-    const hasKeeper = memoryHasKeeper();
-    const isCustomMessage = hasKeeper && message.trim();
+    if (!user) {
+      toast.error("You must log in to update.");
+      return;
+    }
+    if (!name?.trim()) {
+      toast.error("Please enter name before submitting.");
+      return;
+    } else if (!memoryHasKeeper() && !placeholderName?.trim()) {
+      toast.error("Please select a message.");
+      return;
+    }
+
+    const isCustomMessage = Boolean(
+      memoryHasKeeper() && message?.trim().length > 0
+    );
+
     const finalMessage = isCustomMessage ? message : placeholderName;
 
     const condolenceData = {
@@ -156,15 +217,42 @@ const Modals = ({ select_id, set_Id, selectedImage, data }) => {
       emptyField("name");
       emptyField("message");
       emptyField("relation");
-      emptyField("placeholderName");
+      const updatedCondolences = [...data.Condolences, response];
+      updateObituary({ ["Condolences"]: updatedCondolences });
     } catch (error) {
       console.error(`Failed to create Condolence`, error);
       toast.error("Error Creating Condolence");
     }
   };
-  //checking Keeper
+
+  //add event
+  const [location, setLocation] = useState(null);
+  const initialEvent = {
+    eventName: "",
+    eventLocation: "",
+    eventDate: null,
+    eventHour: null,
+    eventMinute: null,
+  };
+  const [newEvent, setNewEvent] = useState(initialEvent);
+
+  const updateEventField = (field, value) => {
+    setNewEvent((prevEvent) => ({
+      ...prevEvent,
+      [field]: value,
+    }));
+  };
+
+  useEffect(() => {
+    console.log(newEvent);
+  }, [newEvent]);
+  //checking if memory has keepers
   const memoryHasKeeper = () => {
     return data?.Keepers?.length > 0;
+  };
+  //checking if current user is keeper
+  const isKeeper = () => {
+    return user?.id && data?.Keepers?.some((keeper) => keeper.id === user.id);
   };
 
   // Toggle function for each dropdown
@@ -173,23 +261,73 @@ const Modals = ({ select_id, set_Id, selectedImage, data }) => {
     setOpenPicker(openPicker === type ? null : type); // Close if already open
   };
   const updateMemory = async (field, value) => {
-    console.log(field, value);
-    if (field !== "picture") {
+    if (!user) {
+      toast.error("You must log in to update.");
+      return;
+    }
+
+    if (!isKeeper()) {
+      toast.error("Only keepers can update!");
+      return;
+    }
+    if (field === "events") {
+      const requiredFields = [
+        "eventName",
+        "eventLocation",
+        "eventDate",
+        "eventHour",
+        "eventMinute",
+      ];
+      const isValidEvent = requiredFields.every(
+        (key) => value[key] !== null && value[key]?.toString().trim() !== ""
+      );
+
+      if (!isValidEvent) {
+        toast.error("Please fill in all event details.");
+        return;
+      }
+
+      // Parse existing events and update
+      const parsedEvents = data?.events ? JSON.parse(data.events) : [];
+      const updatedEvents =
+        parsedEvents.length > 0 ? [...parsedEvents, value] : [value];
+
+      value = JSON.stringify(updatedEvents);
+    } else if (field === "picture") {
+      if (!value) {
+        toast.error("No image selected!");
+        return;
+      }
+    } else {
       if (!value.trim()) {
-        console.warn(`${field} text is empty`);
+        toast.error(`${field} field is empty`);
         return;
       }
     }
+
     const formData = new FormData();
     formData.append(field, value);
     console.log(formData);
+
     try {
       const response = await obituaryService.updateObituary(data.id, formData);
       console.log(`${field} updated successfully!`, response);
+      toast.success(`${field} updated successfully!`);
+
+      if (field === "picture") {
+        setUploadedImage(URL.createObjectURL(value));
+      }
+      if (field === "picture") {
+        updateObituary({ ["image"]: response.image });
+      } else {
+        updateObituary({ [field]: value });
+      }
     } catch (error) {
       console.error(`Failed to update ${field}:`, error);
+      toast.error(`Failed to update ${field}`);
     }
   };
+
   const [showHoursDropdown, setShowHoursDropdown] = useState(false);
   const [showMinutesDropdown, setShowMinutesDropdown] = useState(false);
 
@@ -235,11 +373,11 @@ const Modals = ({ select_id, set_Id, selectedImage, data }) => {
     },
     {
       placeholder: "Dodaj fotografije",
-      color: "yellowBorder",
+      color: memoryHasKeeper() ? "yellowBackground" : "yellowBorder",
     },
     {
       placeholder: "Napiši poljubno sožalje",
-      color: "yellowBorder",
+      color: memoryHasKeeper() ? "yellowBackground" : "yellowBorder",
     },
     {
       placeholder: "Spremeni ozadje",
@@ -362,11 +500,26 @@ const Modals = ({ select_id, set_Id, selectedImage, data }) => {
       case 4:
         set_Id("add_thought");
         break;
+      case 5:
+        set_Id("6");
+        break;
+      case 6:
+        set_Id("sayings_condolence");
+        break;
       case 7:
         set_Id("change_background");
         break;
       case 8:
         set_Id("add_music");
+        break;
+      case 9:
+        set_Id("13");
+        break;
+      case 10:
+        set_Id("13");
+        break;
+      case 11:
+        set_Id("13");
         break;
       case 12:
         set_Id("hide_page");
@@ -382,6 +535,17 @@ const Modals = ({ select_id, set_Id, selectedImage, data }) => {
   const [placeholderName, setPlaceholderName] = useState("");
 
   const [isSelectedRelegion, setIsSelectedReligion] = useState("");
+
+  const formatDate = (timestamp) => {
+    const date = timestamp ? new Date(timestamp) : new Date();
+    return date.toLocaleString("sl-SI", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
   return (
     <div className="w-full bg-[#E1E6EC] py-8 px-[12px] mobile:px-[8px] rounded-2xl border-[1px] border-[#6D778E] ">
       {select_id == "religious_symbol" ? (
@@ -613,10 +777,24 @@ const Modals = ({ select_id, set_Id, selectedImage, data }) => {
           </div>
 
           <div className="mt-[42px]">
-            <TextFieldComp placeholder={"Poimenuj dogodek"} />
+            <TextFieldComp
+              placeholder={"Poimenuj dogodek"}
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                updateEventField("eventName", name);
+              }}
+            />
           </div>
           <div className="mt-4">
-            <TextFieldComp placeholder={"Kje poteka"} />
+            <TextFieldComp
+              placeholder={"Kje poteka"}
+              value={location}
+              onChange={(e) => {
+                setLocation(e.target.value);
+                updateEventField("eventLocation", location);
+              }}
+            />
           </div>
           <div className="text-[#1E2125] text-[14px] leading-[24px] font-variation-customOpt14  font-normal mt-[32px] ">
             DATUM
@@ -639,7 +817,8 @@ const Modals = ({ select_id, set_Id, selectedImage, data }) => {
                   selected={startDate}
                   onChange={(date) => {
                     setStartDate(date); // Update only day
-                    setOpenPicker(null); // Close picker after selection
+                    setOpenPicker(null);
+                    updateEventField("eventDate", date); // Close picker after selection
                   }}
                   dateFormat="d" // Show only day
                   showDayPicker // Show only day selection
@@ -679,7 +858,8 @@ const Modals = ({ select_id, set_Id, selectedImage, data }) => {
                         startDate.getDate()
                       );
                       setStartDate(updatedDate); // Update only month
-                      setOpenPicker(null); // Close picker after selection
+                      setOpenPicker(null);
+                      updateEventField("eventDate", date); // Close picker after selection
                     }}
                     dateFormat="MM" // Show only month
                     showMonthYearPicker // Show only month selection
@@ -719,7 +899,8 @@ const Modals = ({ select_id, set_Id, selectedImage, data }) => {
                       startDate.getDate()
                     );
                     setStartDate(updatedDate); // Update only year
-                    setOpenPicker(null); // Close picker after selection
+                    setOpenPicker(null);
+                    updateEventField("eventDate", date); // Close picker after selection
                   }}
                   dateFormat="yyyy" // Show only year
                   showYearPicker // Show only year selection
@@ -771,6 +952,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data }) => {
                       onClick={() => {
                         setShowHoursDropdown(false);
                         setSelectedHour(hour);
+                        updateEventField("eventHour", hour);
                       }}
                     >
                       {hour.toString().padStart(2, "0")}
@@ -805,6 +987,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data }) => {
                         console.log(`Selected minute: ${minute}`);
                         setShowMinutesDropdown(false);
                         setSelectedMinute(minute);
+                        updateEventField("eventMinute", minute);
                       }}
                     >
                       {minute}
@@ -816,7 +999,10 @@ const Modals = ({ select_id, set_Id, selectedImage, data }) => {
           </div>
 
           <div className="w-[254px] mt-[42px]">
-            <ButtonBlueBorder placeholder={"Objavi"} />
+            <ButtonBlueBorder
+              placeholder={"Objavi"}
+              onClick={() => updateMemory("events", newEvent)}
+            />
           </div>
         </div>
       ) : null}
@@ -1219,7 +1405,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data }) => {
           </div>
 
           <div className="text-[16px] mt-2 leading-[19px] text-[#1E2125] text-center flex justify-center font-variation-customOpt16">
-            23:12:57
+            23:59:55
           </div>
           <div className="flex mobile:w-[100%] w-[254px] mt-8 justify-center mx-auto">
             <ButtonBlueBorder placeholder={"Zapri"} />
@@ -1231,7 +1417,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data }) => {
             </div>
 
             <div className="text-[14px] text-[#1E2125] leading-[16px] font-variation-customOpt14 font-medium">
-              12.10.2024 13:32
+              {formatDate(data?.candles?.[0]?.lastBurnedCandleTime)}
             </div>
           </div>
         </div>
@@ -1462,7 +1648,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data }) => {
             className="text-[#1E2125] text-[32px] mt-3 leading-[28px] font-variation-customOpt32 text-center font-semibold mobile:text-[24px] mobile:leading-[23px]
           mobile:font-variation-customOpt24"
           >
-            Mario Danilo Primo
+            {data?.name}
           </div>
 
           <div

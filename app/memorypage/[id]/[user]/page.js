@@ -95,6 +95,17 @@ const MemoryPage = ({ params }) => {
     }
   };
 
+  const updateObituary = (updatedData) => {
+    setObituary((prevObituary) => ({
+      ...prevObituary,
+      ...updatedData,
+    }));
+  };
+
+  useEffect(() => {
+    console.log(obituary);
+  }, [obituary]);
+
   return (
     <Layout from={"3"} forFooter={"memorypage"}>
       <div className="flex flex-1 flex-col mx-auto bg-[#ecf0f3]">
@@ -105,6 +116,7 @@ const MemoryPage = ({ params }) => {
           set_Id={setSelect_Id}
           selectedImage={selectedImage}
           data={obituary}
+          updateObituary={updateObituary}
         />
         <ImageFullView
           showImageView={showImageView}
@@ -116,6 +128,7 @@ const MemoryPage = ({ params }) => {
           set_Id={setSelect_Id}
           setModal={setIsShowModal}
           data={obituary}
+          updateObituary={updateObituary}
         />
 
         <SanctifiedComp
