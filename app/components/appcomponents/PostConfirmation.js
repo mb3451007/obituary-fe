@@ -17,6 +17,8 @@ const PostConfirmation = () => {
     setIsTableVisible((prev) => !prev);
   };
   const [posts, setPosts] = useState([]);
+  const [obituaryId, setObituaryId] = useState("");
+  const [userId, setUserId] = useState("");
   const mockData = [
     {
       title: "Mary ",
@@ -145,6 +147,30 @@ const PostConfirmation = () => {
       minute: "2-digit",
     });
   };
+
+  //To be deleted
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const assignData = {
+        userId: userId,
+        obituaryId: obituaryId,
+      };
+      const response = await obituaryService.assignKeeper(assignData);
+
+      if (response.error) {
+        toast.error(
+          response.error || "Something went wrong. Please try again!"
+        );
+        return;
+      }
+      toast.success("Keeper Assigned");
+      console.log(response);
+    } catch (err) {
+      console.error("Error Assgining Keeper", err);
+      toast.error(err.message || "Error Assgining Keeper");
+    }
+  };
   return (
     <>
       <div className="tabletUserAcc:hidden mobileUserAcc:hidden flex flex-col mt-[86px] tabletUserAcc:mt-[46px] gap-y-5 mobileUserAcc:gap-y-3 mobileUserAcc:mt-[27px] desktopUserAcc:pr-[40px] pr-0 ">
@@ -179,7 +205,24 @@ const PostConfirmation = () => {
             </p>
           </div>
         </div>
-
+        <div>
+          <h1>Assign Keeper</h1>
+          <form onSubmit={handleSubmit}>
+            <input
+              type="text"
+              placeholder="User ID"
+              value={userId}
+              onChange={(e) => setUserId(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Obituary ID"
+              value={obituaryId}
+              onChange={(e) => setObituaryId(e.target.value)}
+            />
+            <button type="submit">Assign</button>
+          </form>
+        </div>
         <div className="overflow-x-auto mt-[40px]">
           <div className="overflow-x-auto">
             <div className="overflow-x-auto">

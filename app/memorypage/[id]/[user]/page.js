@@ -88,6 +88,17 @@ const MemoryPage = ({ params }) => {
         }
 
         setObituary(visitRespone);
+        if (visitRespone.Condolences.length === 0) {
+          const persons = [
+            {
+              name: "osmrtnica.com",
+              createdTimestamp: new Date(),
+              relation: "",
+              message: "Počivaj v miru",
+            },
+          ];
+          updateObituary({ ["Condolences"]: persons });
+        }
       }
     } catch (err) {
       console.error("Error fetching obituary:", err);
@@ -130,20 +141,22 @@ const MemoryPage = ({ params }) => {
           data={obituary}
           updateObituary={updateObituary}
         />
-
-        <SanctifiedComp
-          data={obituary.Dedications}
-          set_Id={setSelect_Id}
-          setModal={setIsShowModal}
-        />
-
-        <ImageWall
-          set_Id={setSelect_Id}
-          setModal={setIsShowModal}
-          setShowImageView={setShowImageView}
-          setImageId={setImageId}
-          data={obituary?.Photos}
-        />
+        {obituary?.Dedications?.length > 0 && (
+          <SanctifiedComp
+            data={obituary.Dedications}
+            set_Id={setSelect_Id}
+            setModal={setIsShowModal}
+          />
+        )}
+        {obituary?.Photos?.length > 0 && (
+          <ImageWall
+            set_Id={setSelect_Id}
+            setModal={setIsShowModal}
+            setShowImageView={setShowImageView}
+            setImageId={setImageId}
+            data={obituary?.Photos}
+          />
+        )}
 
         <Condolences
           set_Id={setSelect_Id}

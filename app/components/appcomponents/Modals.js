@@ -124,21 +124,26 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
       toast.error("Current Memory has no keeper! You cannot proceed");
       return;
     }
-    const sorrowBookData = {
+    const dedicationData = {
       title,
       message,
       name,
+      isKeeper: isKeeper(),
     };
 
     try {
       const response = await obituaryService.createDedication(
         data.id,
-        sorrowBookData
+        dedicationData
       );
 
       console.log(`Dedication Created successfully!`, response);
 
       toast.success("Dedication Created Successfully");
+      if (isKeeper()) {
+        const updatedDedication = [...data.Dedications, response];
+        updateObituary({ ["Dedications"]: updatedDedication });
+      }
       emptyField("name");
       emptyField("message");
       emptyField("title");
@@ -165,6 +170,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
     }
     const formData = new FormData();
     formData.append("picture", uploadedPicture);
+    formData.append("isKeeper", isKeeper());
     try {
       const response = await obituaryService.addPhoto(data.id, formData);
 
@@ -172,6 +178,11 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
       toast.success("Photo Sent to Keeper for review!");
       setUploadedPicture(null);
       setUploadedImage(null);
+
+      if (isKeeper()) {
+        const updatedPhoto = [...data.Photos, response];
+        updateObituary({ ["Photos"]: updatedPhoto });
+      }
     } catch (error) {
       console.error(`Failed to add  photo`, error);
       toast.error("Error Adding Photo");
@@ -203,6 +214,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
       isCustomMessage,
       name,
       relation,
+      isKeeper: isKeeper(),
     };
 
     try {
@@ -217,11 +229,42 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
       emptyField("name");
       emptyField("message");
       emptyField("relation");
-      const updatedCondolences = [...data.Condolences, response];
-      updateObituary({ ["Condolences"]: updatedCondolences });
+      if (isKeeper() || !isCustomMessage) {
+        const updatedCondolences = [...data.Condolences, response];
+        updateObituary({ ["Condolences"]: updatedCondolences });
+      }
     } catch (error) {
       console.error(`Failed to create Condolence`, error);
       toast.error("Error Creating Condolence");
+    }
+  };
+
+  const addReport = async () => {
+    if (!user) {
+      toast.error("You must log in to update.");
+      return;
+    }
+    if (!name?.trim() || !message?.trim()) {
+      toast.error("Please enter complete details before submitting.");
+      return;
+    }
+
+    const reportData = {
+      message,
+      name,
+    };
+
+    try {
+      const response = await obituaryService.addReport(data.id, reportData);
+
+      console.log(`Report Submitted successfully!`, response);
+
+      toast.success("Report Submitted successfully");
+      emptyField("name");
+      emptyField("message");
+    } catch (error) {
+      console.error(`Failed to submit report`, error);
+      toast.error("Error submitting report");
     }
   };
 
@@ -299,7 +342,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
         return;
       }
     } else {
-      if (!value.trim()) {
+      if (!value.trim() && field !== "symbol") {
         toast.error(`${field} field is empty`);
         return;
       }
@@ -307,6 +350,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
 
     const formData = new FormData();
     formData.append(field, value);
+
     console.log(formData);
 
     try {
@@ -357,6 +401,22 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
   };
   const customButtonData = [
     {
+      placeholder: "Poljubno sožalje",
+      color: "yellowBorder",
+    },
+    {
+      placeholder: "Dodaj fotografije",
+      color: "yellowBorder",
+    },
+    {
+      placeholder: "Posvetilo, Zadnji pozdrav",
+      color: "yellowBackground",
+    },
+    {
+      placeholder: "Deljenje zgodb, čarobnih trenutkov",
+      color: "yellowBackground",
+    },
+    {
       placeholder: "Spremeni osmrtnico",
     },
     {
@@ -371,32 +431,14 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
     {
       placeholder: "Dodaj verz, misel",
     },
-    {
-      placeholder: "Dodaj fotografije",
-      color: memoryHasKeeper() ? "yellowBackground" : "yellowBorder",
-    },
-    {
-      placeholder: "Napiši poljubno sožalje",
-      color: memoryHasKeeper() ? "yellowBackground" : "yellowBorder",
-    },
+
     {
       placeholder: "Spremeni ozadje",
     },
     {
       placeholder: "Dodaj glasbo",
     },
-    {
-      placeholder: "Napiši poudarjeno posvetilo",
-      color: "yellowBackground",
-    },
-    {
-      placeholder: "Napiši  Zahvalo",
-      color: "yellowBackground",
-    },
-    {
-      placeholder: "Napiši  Zadnji klic",
-      color: "yellowBackground",
-    },
+
     {
       placeholder: "Nastavi zasebnost / skrij stran",
       color: "redBackground",
@@ -486,45 +528,42 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
   const modelOption = (index) => {
     switch (index) {
       case 0:
-        set_Id("change_obituary");
-        break;
-      case 1:
-        set_Id("add_photo");
-        break;
-      case 2:
-        set_Id("religious_symbol");
-        break;
-      case 3:
-        set_Id("add_event");
-        break;
-      case 4:
-        set_Id("add_thought");
-        break;
-      case 5:
-        set_Id("6");
-        break;
-      case 6:
         set_Id("sayings_condolence");
         break;
+      case 1:
+        set_Id("6");
+        break;
+      case 2:
+        set_Id("13");
+        break;
+      case 3:
+        set_Id("13");
+        break;
+      case 4:
+        set_Id("change_obituary");
+        break;
+      case 5:
+        set_Id("add_photo");
+        break;
+      case 6:
+        set_Id("religious_symbol");
+        break;
       case 7:
-        set_Id("change_background");
+        set_Id("add_event");
         break;
       case 8:
-        set_Id("add_music");
+        set_Id("add_thought");
         break;
       case 9:
-        set_Id("13");
+        set_Id("change_background");
         break;
       case 10:
-        set_Id("13");
+        set_Id("add_music");
         break;
       case 11:
-        set_Id("13");
-        break;
-      case 12:
         set_Id("hide_page");
         break;
-      case 13:
+      case 12:
         set_Id("invite_admin");
         break;
       // default:
@@ -546,6 +585,47 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
       minute: "2-digit",
     });
   };
+
+  //code for cnadle countdown
+  const [timeLeft, setTimeLeft] = useState(0);
+
+  useEffect(() => {
+    if (!data?.candles[0].myLastBurntCandleTime) return;
+    console.log(data?.candles[0].myLastBurntCandleTime);
+    const targetDate =
+      new Date(data?.candles[0].myLastBurntCandleTime).getTime() +
+      24 * 60 * 60 * 1000;
+
+    console.log(targetDate);
+
+    const updateCountdown = () => {
+      const now = new Date().getTime();
+      const difference = targetDate - now;
+      setTimeLeft(difference > 0 ? difference : 0);
+
+      console.log(`Target Date: ${new Date(targetDate).toISOString()}`);
+      console.log(`Current Time: ${new Date(now).toISOString()}`);
+      console.log(`Difference: ${targetDate - now} milliseconds`);
+    };
+
+    updateCountdown(); // Initial call
+    const timer = setInterval(updateCountdown, 1000);
+
+    return () => clearInterval(timer);
+  }, [data?.candles[0].myLastBurntCandleTime]);
+
+  const formatTime = (milliseconds) => {
+    const totalSeconds = Math.floor(milliseconds / 1000);
+    const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
+    const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(
+      2,
+      "0"
+    );
+    const seconds = String(totalSeconds % 60).padStart(2, "0");
+    console.log(`${hours}:${minutes}:${seconds}`);
+    return `${hours}:${minutes}:${seconds}`;
+  };
+
   return (
     <div className="w-full bg-[#E1E6EC] py-8 px-[12px] mobile:px-[8px] rounded-2xl border-[1px] border-[#6D778E] ">
       {select_id == "religious_symbol" ? (
@@ -553,10 +633,14 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
           <div className="mobile:text-[20px] text-[24px] leading-[28px] text-[#1E2125] mobile:leading-[23px] mobile:font-variation-customOpt20 font-variation-customOpt24 font-[500px]">
             Dodaj religiozni simbol
           </div>
-          <div className="flex flex-row flex-wrap gap-x-[22px] gap-y-[30px] mobile:gap-x-[20px] items-center mt-[32px]">
+          <div className="flex flex-row flex-wrap gap-x-[10px] gap-y-[30px] mobile:gap-x-[20px] items-center mt-[32px]">
             <div
               onClick={() => {
-                setIsSelectedReligion("1");
+                if (isSelectedRelegion !== "1") {
+                  setIsSelectedReligion("1");
+                } else {
+                  setIsSelectedReligion("");
+                }
               }}
               className={`p-[10px] ${
                 isSelectedRelegion === "1" ? "shadow-custom-dark-to-white" : ""
@@ -572,7 +656,11 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
 
             <div
               onClick={() => {
-                setIsSelectedReligion("2");
+                if (isSelectedRelegion !== "2") {
+                  setIsSelectedReligion("2");
+                } else {
+                  setIsSelectedReligion("");
+                }
               }}
               className={`p-[10px] ${
                 isSelectedRelegion === "2" ? "shadow-custom-dark-to-white" : ""
@@ -588,7 +676,11 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
 
             <div
               onClick={() => {
-                setIsSelectedReligion("3");
+                if (isSelectedRelegion !== "3") {
+                  setIsSelectedReligion("3");
+                } else {
+                  setIsSelectedReligion("");
+                }
               }}
               className={`py-[20px] px-[10px] ${
                 isSelectedRelegion === "3" ? "shadow-custom-dark-to-white" : ""
@@ -604,7 +696,11 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
 
             <div
               onClick={() => {
-                setIsSelectedReligion("4");
+                if (isSelectedRelegion !== "4") {
+                  setIsSelectedReligion("4");
+                } else {
+                  setIsSelectedReligion("");
+                }
               }}
               className={`p-[10px] ${
                 isSelectedRelegion === "4" ? "shadow-custom-dark-to-white" : ""
@@ -620,7 +716,11 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
 
             <div
               onClick={() => {
-                setIsSelectedReligion("5");
+                if (isSelectedRelegion !== "5") {
+                  setIsSelectedReligion("5");
+                } else {
+                  setIsSelectedReligion("");
+                }
               }}
               className={`p-[10px] ${
                 isSelectedRelegion === "5" ? "shadow-custom-dark-to-white" : ""
@@ -746,6 +846,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
                 console.log(e.target.value);
                 setObituaryText(e.target.value);
               }}
+              maxLength={5000}
             />
           </div>
           <div className="hidden mobile:flex mt-6 h-[306px] ">
@@ -755,6 +856,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
               }
               height={"306px"}
               value={obituaryText}
+              maxLength={5000}
               onChange={(e) => setObituaryText(e.target.value)}
             />
           </div>
@@ -1026,6 +1128,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
                 console.log(e.target.value);
                 setVerse(e.target.value);
               }}
+              maxLength={60}
             />
           </div>
           <div className="mobile:w-[100%] w-[254px] mt-8">
@@ -1201,27 +1304,42 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
             Prijava napak
           </div>
           <div className="mt-6">
-            <TextFieldComp
-              placeholder={"Spominska stran:  Mario Danilo Primo, Colombo"}
-            />
+            <TextFieldComp placeholder={data?.name} readOnly />
           </div>
           <div className="flex mt-6 w-[70%] mobile:w-[100%] ">
-            <DescriptionFieldComp placeholder={"Tvoje ime"} height={"48px"} />
+            <DescriptionFieldComp
+              placeholder={"Tvoje ime"}
+              height={"48px"}
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+              }}
+              maxLength={100}
+            />
           </div>
           <div className="flex mobile:hidden mt-6 h-[140px] ">
             <DescriptionFieldComp
               placeholder={"Opis napake"}
               height={"140px"}
+              value={message}
+              onChange={(e) => {
+                setMessage(e.target.value);
+              }}
+              maxLength={1000}
             />
           </div>
           <div className="hidden mobile:flex mt-6 h-[153px]">
             <DescriptionFieldComp
               placeholder={"Opis napake"}
               height={"153px"}
+              value={message}
+              onChange={(e) => {
+                setMessage(e.target.value);
+              }}
             />
           </div>
           <div className="mobile:w-[100%] desktop:w-[254px] tablet:w-[254px] mt-6">
-            <ButtonBlueBorder placeholder={"Pošlji"} />
+            <ButtonBlueBorder placeholder={"Pošlji"} onClick={addReport} />
           </div>
         </div>
       ) : null}
@@ -1288,6 +1406,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
                 console.log(e.target.value);
                 setMessage(e.target.value);
               }}
+              maxLength={250}
             />
           </div>
 
@@ -1304,6 +1423,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
                 console.log(e.target.value);
                 setName(e.target.value);
               }}
+              maxLength={100}
             />
           </div>
 
@@ -1315,6 +1435,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
                 console.log(e.target.value);
                 setRelation(e.target.value);
               }}
+              maxLength={50}
             />
           </div>
 
@@ -1373,20 +1494,24 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
       ) : null}
       {select_id == "3" ? (
         <div>
-          <Image
-            src={img_light_candle}
-            alt=""
+          <video
+            src="/candleburn.mov"
             width={300}
             height={153}
             className="mx-auto hidden mobile:block"
+            autoPlay
+            muted
+            playsInline
           />
 
-          <Image
-            src={img_light_candle}
-            alt=""
+          <video
+            src="/candleburn.mov"
             width={392}
             height={200}
             className="mx-auto mobile:hidden block"
+            autoPlay
+            muted
+            playsInline
           />
 
           <div
@@ -1405,7 +1530,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
           </div>
 
           <div className="text-[16px] mt-2 leading-[19px] text-[#1E2125] text-center flex justify-center font-variation-customOpt16">
-            23:59:55
+            {formatTime(timeLeft)}
           </div>
           <div className="flex mobile:w-[100%] w-[254px] mt-8 justify-center mx-auto">
             <ButtonBlueBorder placeholder={"Zapri"} />
@@ -1572,6 +1697,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
               onChange={(e) => {
                 setTitle(e.target.value);
               }}
+              maxLength={25}
             />
           </div>
           <div className=" hidden mobile:flex mt-[24px]">
@@ -1581,6 +1707,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
               onChange={(e) => {
                 setTitle(e.target.value);
               }}
+              maxLength={25}
             />
           </div>
           <div className="hidden mobile:flex mt-6 text-[14px] font-normal text-[#6D778E] ">
@@ -1594,15 +1721,17 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
               onChange={(e) => {
                 setMessage(e.target.value);
               }}
+              maxLength={10000}
             />
           </div>
           <div className="mt-[24px] flex mobile:hidden">
             <TextFieldComp
-              placeholder={"Napiši svoje"}
+              placeholder={"Napiši svoje ime ali vzdevek"}
               value={name}
               onChange={(e) => {
                 setName(e.target.value);
               }}
+              maxLength={100}
             />
           </div>
           <div className="mobile:w-[100%] w-[254px] mt-[24px]">
@@ -1614,15 +1743,17 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
                 onChange={(e) => {
                   setMessage(e.target.value);
                 }}
+                maxLength={10000}
               />
             </div>
             <div className=" hidden mobile:flex mt-[24px]">
               <TextFieldComp
-                placeholder={"Napiši svoje"}
+                placeholder={"Napiši svoje ime ali vzdevek"}
                 value={name}
                 onChange={(e) => {
                   setName(e.target.value);
                 }}
+                maxLength={100}
               />
             </div>
 
@@ -1657,17 +1788,32 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
           >
             Možnosti za Skrbnika
           </div>
-          <div className=" w-full mt-8 flex-col">
+          <div className=" w-full  flex-col">
             {customButtonData?.map((item, index) => {
               return (
-                <ButtonBlueCustom
-                  key={index}
-                  placeholder={item.placeholder}
-                  color={item?.color}
-                  onPress={() => {
-                    modelOption(index);
-                  }}
-                />
+                <React.Fragment key={index}>
+                  {index === 4 && (
+                    <React.Fragment>
+                      <div
+                        className="text-[#1E2125] text-[20px] mb-10 leading-[28px] font-variation-customOpt20 text-center font-normal mobile:text-[16px] 
+          mobile:font-variation-customOpt16"
+                      >
+                        Objavo na strani mora potrditi Skrbnik.
+                      </div>
+                      <div
+                        className="text-[#1E2125] text-[20px]  leading-[28px] font-variation-customOpt20 text-center font-normal mobile:text-[16px] 
+          mobile:font-variation-customOpt16"
+                      >
+                        Možnosti za SKRBNIKA
+                      </div>
+                    </React.Fragment>
+                  )}
+                  <ButtonBlueCustom
+                    placeholder={item.placeholder}
+                    color={item?.color}
+                    onPress={() => modelOption(index)}
+                  />
+                </React.Fragment>
               );
             })}
           </div>
@@ -1676,8 +1822,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
             className="text-[#1E2125] text-[16px] mt-8 leading-[22px] font-variation-customOpt16 text-center font-medium mobile:text-[13px] 
           mobile:font-variation-customOpt13"
           >
-            Ko stran dobi svojega Skrbnika, pridobijo tudi preostali uporabniki
-            možnost opcij, ki so označene z belo
+            Kmalu še več možnosti za Skrbnika
           </div>
         </div>
       ) : null}
@@ -1795,7 +1940,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
             className="text-[#1E2125] mobile:text-nowrap text-[36px] mt-[32px] leading-[42px] font-variation-customOpt36 mobile:font-variation-customOpt24 text-center font-light mobile:text-[24px] 
                 "
           >
-            {data.name}
+            {data?.name}
           </div>
 
           <div
@@ -1834,7 +1979,6 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
                 onClick={() => {
                   set_Id("sayings_condolence");
                   // set_Id("18");
-                  setModal(true);
                 }}
                 className="w-full mx-[2px] h-full my-[2px] text-[20px]  text-[#D8A800]
                     font-variation-customOpt20 font-normal leading-[24px] flex justify-center items-center cursor-pointer"
@@ -1945,11 +2089,11 @@ function CommonStyle({ item, index, key }) {
        } w-11 h-11 ml-8 mobile:ml-4 rounded-full text-center`}
       >
         {(() => {
-          const nameParts = item.name.split(" ");
+          const nameParts = item?.name?.split(" ") || [];
           const initials =
             nameParts.length > 1
-              ? nameParts[0].substring(0, 2)
-              : item.name[0] + item.name[item.name.length - 1];
+              ? nameParts[0][0] + nameParts[1][0]
+              : nameParts[0]?.substring(0, 2) || "";
 
           return initials.toUpperCase();
         })()}
@@ -1957,6 +2101,7 @@ function CommonStyle({ item, index, key }) {
 
       <div className="text-[16px] mobile:absolute whitespace-nowrap text-[#000000] font-variation-customOpt16 font-light ml-[31.5px] mobile:left-[7px] mobile:ml-[7px]">
         {item.name}
+        {item?.relation ? `, ${item?.relation}` : ""}
       </div>
     </div>
   );

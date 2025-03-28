@@ -4,7 +4,7 @@ const ButtonBlue = ({ placeholder, color, key, onPress }) => {
   return (
     <button
       key={key}
-      className="w-full rounded-[10px] shadow-custom-dark-bottom mt-8"
+      className="w-full rounded-[10px] shadow-custom-dark-bottom mt-4 mb-4"
     >
       <div
         onClick={onPress}

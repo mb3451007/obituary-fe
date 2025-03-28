@@ -227,8 +227,8 @@ const AddObituary = ({ set_Id, setModal }) => {
       const fullName = `${inputValueName} ${inputValueSirName}`;
       const obituaryText =
         inputValueGender === "Male"
-          ? `Sporočamo žalostno vest, da je nas je zapustil naš predragi ${fullName}. Vsi njegovi.`
-          : `Sporočamo žalostno vest, da je nas je zapustila naš predraga ${fullName}. Vsi njeni.  `;
+          ? `Sporočamo žalostno vest, da nas je zapustil naš predragi ${fullName}. Vsi njegovi.`
+          : `Sporočamo žalostno vest, da nas je zapustila naša predraga ${fullName}. Vsi njeni.  `;
 
       let formattedFuneralTimestamp = null;
       if (

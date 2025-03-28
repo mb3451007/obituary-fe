@@ -7,6 +7,7 @@ const DescriptionFieldComp = ({
   value,
   onChange,
   readOnly = false,
+  maxLength,
 }) => {
   return (
     <div
@@ -18,6 +19,7 @@ const DescriptionFieldComp = ({
         className="w-full h-full bg-transparent focus:outline-none text-[#1E2125] resize-none"
         placeholder={placeholder}
         readOnly={readOnly}
+        maxLength={maxLength}
       />
     </div>
   );

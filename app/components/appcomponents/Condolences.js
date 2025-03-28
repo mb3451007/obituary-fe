@@ -75,15 +75,16 @@ const PersonList = ({ currentSlide, setCurrentSlide, persons }) => {
     <div>
       {/* Buttons for Tablet */}
       <div className="w-full desktop:hidden mobile:mt-[5px] h-[100px] mobile:h-[248px] mobile:gap-[32px] mobile:flex mobile:flex-col tablet:flex flex-row justify-center items-center relative">
-        <button
-          onClick={handlePrevTablet}
-          className={`tablet:flex hidden absolute -left-[30px] ${
-            visibleIndices[0] === 0 ? "hidden" : ""
-          }`}
-        >
-          <img src="/img_back.png" alt="back" className="h-[40px] w-[17px]" />
-        </button>
-
+        {persons?.length > 1 && (
+          <button
+            onClick={handlePrevTablet}
+            className={`tablet:flex hidden absolute -left-[30px] ${
+              visibleIndices[0] === 0 ? "hidden" : ""
+            }`}
+          >
+            <img src="/img_back.png" alt="back" className="h-[40px] w-[17px]" />
+          </button>
+        )}
         <PersonCard
           key={currentSlide}
           name={persons[currentSlide]?.name}
@@ -91,59 +92,66 @@ const PersonList = ({ currentSlide, setCurrentSlide, persons }) => {
           relation={persons[currentSlide]?.relation}
           Condolence={persons[currentSlide]?.message}
         />
-
-        <button
-          onClick={handleNextTablet}
-          className={`tablet:flex hidden absolute -right-[30px] ${
-            currentSlide === persons.length - 1 ? "hidden" : ""
-          }`}
-        >
-          <img
-            src="/img_forward.png"
-            alt="Next"
-            className="h-[40px] w-[17px]"
-          />
-        </button>
+        {persons?.length > 1 && (
+          <button
+            onClick={handleNextTablet}
+            className={`tablet:flex hidden absolute -right-[30px] ${
+              currentSlide === persons.length - 1 ? "hidden" : ""
+            }`}
+          >
+            <img
+              src="/img_forward.png"
+              alt="Next"
+              className="h-[40px] w-[17px]"
+            />
+          </button>
+        )}
       </div>
 
       {/* Buttons for mobile*/}
       <div className="hidden mobile:flex justify-between mx-auto mt-[26px] w-[168px] h-[41px]">
-        <button
-          onClick={handlePrevTablet}
-          className={`mobile:flex h-[36px] shadow-custom-light-dark bg-gradient-to-r from-[#FFFFFF] to-[#FFFFFF30] justify-center items-center rounded-lg w-[36px] px-2 ${
-            visibleIndices[0] === 0 ? "hidden" : ""
-          }`}
-        >
-          <img
-            src="img_back_mob.png"
-            alt="back"
-            className="h-[13.79px] w-[8.43px]"
-          />
-        </button>
+        {persons?.length > 1 && (
+          <button
+            onClick={handlePrevTablet}
+            className={`mobile:flex h-[36px] shadow-custom-light-dark bg-gradient-to-r from-[#FFFFFF] to-[#FFFFFF30] justify-center items-center rounded-lg w-[36px] px-2 ${
+              visibleIndices[0] === 0 ? "hidden" : ""
+            }`}
+          >
+            <img
+              src="img_back_mob.png"
+              alt="back"
+              className="h-[13.79px] w-[8.43px]"
+            />
+          </button>
+        )}
 
-        <button
-          onClick={handleNextTablet}
-          className={`mobile:flex h-[36px] shadow-custom-light-dark bg-gradient-to-r from-[#FFFFFF] to-[#FFFFFF30] justify-center items-center rounded-lg w-[36px] px-2 ${
-            visibleIndices[1] === persons.length - 1 ? "hidden" : ""
-          }`}
-        >
-          <img
-            src="/img_forward_mob.png"
-            alt="back"
-            className="h-[13.79px] w-[8.43px]"
-          />
-        </button>
+        {persons?.length > 1 && (
+          <button
+            onClick={handleNextTablet}
+            className={`mobile:flex h-[36px] shadow-custom-light-dark bg-gradient-to-r from-[#FFFFFF] to-[#FFFFFF30] justify-center items-center rounded-lg w-[36px] px-2 ${
+              visibleIndices[1] === persons.length - 1 ? "hidden" : ""
+            }`}
+          >
+            <img
+              src="/img_forward_mob.png"
+              alt="back"
+              className="h-[13.79px] w-[8.43px]"
+            />
+          </button>
+        )}
       </div>
 
       <div className="w-full desktop:flex hidden h-[133px] flex-row justify-center items-center relative">
-        <button
-          onClick={handlePrevTablet}
-          className={`desktop:flex hidden absolute -left-[30px] ${
-            visibleIndices[0] === 0 ? "hidden" : ""
-          }`}
-        >
-          <img src="/img_back.png" alt="back" className="h-[40px] w-[17px]" />
-        </button>
+        {persons?.length > 1 && (
+          <button
+            onClick={handlePrevTablet}
+            className={`desktop:flex hidden absolute -left-[30px] ${
+              visibleIndices[0] === 0 ? "hidden" : ""
+            }`}
+          >
+            <img src="/img_back.png" alt="back" className="h-[40px] w-[17px]" />
+          </button>
+        )}
 
         <PersonCard
           key={currentSlide}
@@ -152,19 +160,20 @@ const PersonList = ({ currentSlide, setCurrentSlide, persons }) => {
           relation={persons[currentSlide]?.relation}
           Condolence={persons[currentSlide]?.message}
         />
-
-        <button
-          onClick={handleNextDesktop}
-          className={`desktop:flex hidden absolute -right-[30px] ${
-            currentSlide === persons.length - 1 ? "hidden" : ""
-          }`}
-        >
-          <img
-            src="/img_forward.png"
-            alt="Next"
-            className="h-[40px] w-[17px]"
-          />
-        </button>
+        {persons?.length > 1 && (
+          <button
+            onClick={handleNextDesktop}
+            className={`desktop:flex hidden absolute -right-[30px] ${
+              currentSlide === persons.length - 1 ? "hidden" : ""
+            }`}
+          >
+            <img
+              src="/img_forward.png"
+              alt="Next"
+              className="h-[40px] w-[17px]"
+            />
+          </button>
+        )}
       </div>
     </div>
   );
@@ -227,25 +236,29 @@ const Condolences = ({ set_Id, setModal, data }) => {
             />
           )}
         </div>
-        <div className="hidden desktop:flex">
-          <ProgressBar
-            currentSlide={currentSlide - 1}
-            totalSlides={totalSlides}
-          />
-        </div>
-        <div className="hidden tablet:flex">
-          <ProgressBar
-            currentSlide={currentSlide - 1}
-            totalSlides={totalSlides}
-          />
-        </div>
+        {data?.length > 1 && (
+          <div className="hidden desktop:flex">
+            <ProgressBar
+              currentSlide={currentSlide - 1}
+              totalSlides={totalSlides}
+            />
+          </div>
+        )}
+        {data?.length > 1 && (
+          <div className="hidden tablet:flex">
+            <ProgressBar
+              currentSlide={currentSlide - 1}
+              totalSlides={totalSlides}
+            />
+          </div>
+        )}
       </div>
-      <div
+      {/* <div
         onClick={() => {}}
         className="text-[16px] cursor-pointer hidden desktop:flex text-[#1E2125] leading-[24px] mt-[32px] font-variation-customOpt16"
       >
         Show more
-      </div>
+      </div> */}
     </div>
   );
 };

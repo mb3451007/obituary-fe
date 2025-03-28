@@ -9,7 +9,10 @@ import obituaryService from "@/services/obituary-service";
 const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
   const [currentURL, setCurrentURL] = useState("");
   const [user, setUser] = useState(null);
-
+  const [showFullObituaryText, setShowFullObituaryText] = useState(false);
+  const toggleText = () => {
+    setShowFullObituaryText((prev) => !prev);
+  };
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -76,6 +79,7 @@ const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
           ...data.candles[0],
           totalCandles: (data.candles[0]?.totalCandles || 0) + 1,
           lastBurnedCandleTime: new Date().toISOString(),
+          myLastBurntCandleTime: new Date(),
         },
         ...data.candles.slice(1),
       ];
@@ -94,12 +98,14 @@ const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
           error.data?.message || "Error burning candle. Please try again."
         );
       }
+      set_Id("3");
+      setModal("true");
     }
   };
   return (
     <div className="flex flex-col w-full  items-center  justify-center">
       <div
-        className="bg-[#ecf0f3] w-full flex justify-center 
+        className="bg-[#ecf0f3] h-auto w-full flex justify-center 
       mt-[57px] tablet:mt-[60px] desktop:mt-0   pt-[60px] "
       >
         <div
@@ -107,7 +113,7 @@ const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
                w-[100%] px-[14px] tablet:px-0 desktop:px-0
                tablet:w-[525px]
                desktop:w-[1089px]  
-               desktop:h-[1180px]             
+               desktop:h-auto             
                "
         >
           <div className="flex desktop:h-full  flex-col desktop:flex-row w-[100%] ">
@@ -311,9 +317,19 @@ const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
                   </div>
                   <div className="bg-[#D4D4D4] h-[1px] w-[100%] my-4 " />
                   {/* <div className="flex h-[79px] desktop:h-[71px] bg-yellow-400"> */}
-                  <div className="flex desktop:pb-[20px] pb-[15px] ">
+                  <div className="flex desktop:pb-[20px] pb-[15px] h-[200px] overflow-auto">
                     <p className="text-[#414141] text-[16px] font-variation-customOpt16 font-normal leading-6 ">
-                      {data?.obituary || "N/A"}
+                      {showFullObituaryText || data?.obituary?.length <= 1200
+                        ? data?.obituary
+                        : `${data?.obituary?.slice(0, 1200)}...`}
+                      {data?.obituary?.length > 1200 && (
+                        <button
+                          onClick={toggleText}
+                          className="text-blue-500 ml-2"
+                        >
+                          {showFullObituaryText ? "See Less" : "See More"}
+                        </button>
+                      )}
                     </p>
                   </div>
                 </div>
@@ -343,7 +359,7 @@ const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
 
                 {data &&
                   (data.funeralTimestamp ||
-                    (parsedEvents && parsedEvents > 0)) &&
+                    (parsedEvents && parsedEvents.length > 0)) &&
                   [
                     ...(data.funeralTimestamp
                       ? [
@@ -771,23 +787,52 @@ const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
                 set_Id("20");
                 setModal(true);
               }}
-              sorrowBooks={data.SorrowBooks}
+              users={data.SorrowBooks}
             />
           </div>
         </div>
+      </div>
+      <div
+        className="ml-auto mr-[14px] mb-10 desktop:mr-[18%] flex items-center cursor-pointer "
+        onClick={() => {
+          set_Id("13");
+          setModal(true);
+        }}
+      >
+        <Image
+          src={"/round_add.png"}
+          alt="Description of the image"
+          width={100}
+          height={100}
+          className="w-[12px] h-[12px] mr-[10px]"
+        />
+        <p className="text-[12px] text-[#414141] font-variation-customOpt12 font-normal">
+          Dodaj posvetilo
+        </p>
+      </div>
+      <div
+        className="ml-auto mr-[14px] desktop:mr-[18%] flex items-center cursor-pointer "
+        onClick={() => {
+          set_Id("6");
+          setModal(true);
+        }}
+      >
+        <Image
+          src={"/round_add.png"}
+          alt="Description of the image"
+          width={100}
+          height={100}
+          className="w-[12px] h-[12px] mr-[10px]"
+        />
+        <p className="text-[12px] text-[#414141] font-variation-customOpt12 font-normal">
+          Dodaj fotografije
+        </p>
       </div>
     </div>
   );
 };
 
-const UserCircles = ({ onTextClick, onCircle, sorrowBooks }) => {
-  const [users, setUsers] = useState([]);
-
-  useEffect(() => {
-    if (sorrowBooks) {
-      setUsers(sorrowBooks);
-    }
-  }, [sorrowBooks]);
+const UserCircles = ({ onTextClick, onCircle, users }) => {
   return (
     <div className="flex flex-col tablet:flex-row desktop:flex-row ">
       <button
@@ -806,7 +851,7 @@ const UserCircles = ({ onTextClick, onCircle, sorrowBooks }) => {
         </p>
       </button>
       <div className="hidden   tablet:flex desktop:flex flex-row-reverse">
-        {users.reverse().map((item, index) => (
+        {users?.reverse().map((item, index) => (
           <Container
             item={item}
             index={index}
@@ -816,7 +861,7 @@ const UserCircles = ({ onTextClick, onCircle, sorrowBooks }) => {
         ))}
       </div>
       <div className="flex  tablet:hidden desktop:hidden mt-[48px] flex-row-reverse">
-        {users.reverse().map((item, index) => (
+        {users?.reverse().map((item, index) => (
           <Container
             item={item}
             index={index}
@@ -855,11 +900,11 @@ const Container = ({ index, item, key, onCircleClick }) => {
     >
       <div className="text-[20px] text-[#1E2125] font-normal ">
         {(() => {
-          const nameParts = item?.name?.split(" ");
+          const nameParts = item?.name?.split(" ") || [];
           const initials =
             nameParts.length > 1
-              ? nameParts[0].substring(0, 2)
-              : item?.name[0] + item?.name[item.name.length - 1];
+              ? nameParts[0][0] + nameParts[1][0]
+              : nameParts[0]?.substring(0, 2) || "";
 
           return initials.toUpperCase();
         })()}

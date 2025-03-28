@@ -186,7 +186,7 @@ const SanctifiedComp = ({ set_Id, setModal, data }) => {
             set_Id("13");
             setModal(true);
           }}
-          className="flex cursor-pointer mt-6 w-full h-[16px] items-center justify-end pr-[11.5px] "
+          className="flex mt-6 w-full h-[16px] items-center justify-end pr-[11.5px]  cursor-pointer  "
         >
           <Image
             src={"/round_add.png"}
@@ -207,84 +207,83 @@ const SanctifiedComp = ({ set_Id, setModal, data }) => {
           </p>
         </div>
       </div>
-      {dedications?.length > 0 && (
-        <div className="flex flex-col desktop:mb-5 desktop:shadow-custom-light-dark desktop:rounded-lg   mt-[34px] desktop:mt-6 mobile:w-full mobile:h-[720px] tablet:h-[460px] tablet:justify-center desktop:justify-center ">
-          <div className="relative  w-[720px] tablet:shadow-custom-light-dark tablet:rounded-lg  tablet:w-[580px] mobile:w-full h-[350px] tablet:h-[383px] mobile:h-[633px]">
-            {dedications?.map((dedication, index) => (
-              <ImageSliderBlock
-                dedication={dedication}
-                index={index}
-                key={index}
-              />
-            ))}
-          </div>
-          <div
-            className="mobile:hidden flex absolute mobile:mt-[650px]  w-[150px] tablet:w-[670px]  z-45 self-center items-center 
+
+      <div className="flex flex-col desktop:mb-5 desktop:shadow-custom-light-dark desktop:rounded-lg   mt-[34px] desktop:mt-6 mobile:w-full mobile:h-[720px] tablet:h-[460px] tablet:justify-center desktop:justify-center ">
+        <div className="relative  w-[720px] tablet:shadow-custom-light-dark tablet:rounded-lg  tablet:w-[580px] mobile:w-full h-[350px] tablet:h-[383px] mobile:h-[633px]">
+          {dedications?.map((dedication, index) => (
+            <ImageSliderBlock
+              dedication={dedication}
+              index={index}
+              key={index}
+            />
+          ))}
+        </div>
+        <div
+          className="mobile:hidden flex absolute mobile:mt-[650px]  w-[150px] tablet:w-[670px]  z-45 self-center items-center 
                 justify-between  desktop:w-[1110px]  
                  "
-          >
-            <button
-              onClick={handlePrev}
-              className="flex  w-[60px] h-[60px]
+        >
+          <button
+            onClick={handlePrev}
+            className="flex  w-[60px] h-[60px]
             desktop:h-[148px] desktop:w-[148px]
             items-center justify-center tablet:justify-start
            "
-            >
-              <Image
-                src={"/prev_img_icon.png"}
-                alt="Description of the image"
-                width={1000}
-                height={1000}
-                className="flex w-[24px] h-[40px] "
-              />
-            </button>
-            <button
-              onClick={handleNext}
-              className="flex w-[60px] h-[60px]
+          >
+            <Image
+              src={"/prev_img_icon.png"}
+              alt="Description of the image"
+              width={1000}
+              height={1000}
+              className="flex w-[24px] h-[40px] "
+            />
+          </button>
+          <button
+            onClick={handleNext}
+            className="flex w-[60px] h-[60px]
             desktop:h-[148px] desktop:w-[148px]
             items-center justify-center tablet:justify-end
              "
-            >
-              <Image
-                src={"/next_img_icon.png"}
-                alt="Description of the image"
-                width={1000}
-                height={1000}
-                className="flex w-[24px] h-[40px] "
-              />
-            </button>
-          </div>
-          <div className="hidden mobile:flex justify-between mx-auto mt-[26px] w-[120px] h-[41px]">
-            <button
-              onClick={handlePrev}
-              className={`mobile:flex h-[36px] shadow-custom-light-dark bg-gradient-to-r from-[#FFFFFF] to-[#FFFFFF30] justify-center items-center rounded-lg w-[36px] `}
-            >
-              {/* <img src="/img_back_mob.png" alt="back" className="h-[13.79px] w-[8.43px]" /> */}
-              <Image
-                src={"/img_back_mob.png"}
-                alt="Description of the image"
-                width={1000}
-                height={1000}
-                className="h-[13.79px] w-[8.43px] "
-              />
-            </button>
-
-            <button
-              onClick={handleNext}
-              className={`mobile:flex h-[36px] shadow-custom-light-dark bg-gradient-to-r from-[#FFFFFF] to-[#FFFFFF30] justify-center items-center rounded-lg w-[36px] px-2`}
-            >
-              <Image
-                src={"/img_forward_mob.png"}
-                alt="Description of the image"
-                width={1000}
-                height={1000}
-                className="h-[13.79px] w-[8.43px]"
-              />
-              {/* <img src="/img_forward_mob.png" alt="back" className="h-[13.79px] w-[8.43px]" /> */}
-            </button>
-          </div>
+          >
+            <Image
+              src={"/next_img_icon.png"}
+              alt="Description of the image"
+              width={1000}
+              height={1000}
+              className="flex w-[24px] h-[40px] "
+            />
+          </button>
         </div>
-      )}
+        <div className="hidden mobile:flex justify-between mx-auto mt-[26px] w-[120px] h-[41px]">
+          <button
+            onClick={handlePrev}
+            className={`mobile:flex h-[36px] shadow-custom-light-dark bg-gradient-to-r from-[#FFFFFF] to-[#FFFFFF30] justify-center items-center rounded-lg w-[36px] `}
+          >
+            {/* <img src="/img_back_mob.png" alt="back" className="h-[13.79px] w-[8.43px]" /> */}
+            <Image
+              src={"/img_back_mob.png"}
+              alt="Description of the image"
+              width={1000}
+              height={1000}
+              className="h-[13.79px] w-[8.43px] "
+            />
+          </button>
+
+          <button
+            onClick={handleNext}
+            className={`mobile:flex h-[36px] shadow-custom-light-dark bg-gradient-to-r from-[#FFFFFF] to-[#FFFFFF30] justify-center items-center rounded-lg w-[36px] px-2`}
+          >
+            <Image
+              src={"/img_forward_mob.png"}
+              alt="Description of the image"
+              width={1000}
+              height={1000}
+              className="h-[13.79px] w-[8.43px]"
+            />
+            {/* <img src="/img_forward_mob.png" alt="back" className="h-[13.79px] w-[8.43px]" /> */}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

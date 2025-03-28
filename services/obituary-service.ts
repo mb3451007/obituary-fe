@@ -190,6 +190,35 @@ const changePostStatus = async (data: any) => {
     }
   }
 };
+
+////change post status
+const assignKeeper = async (data: any) => {
+  try {
+    const endpoint = `/keeper/`;
+    const response = await axios.post(endpoint, data);
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response) {
+      console.error("API Error:", error.response.data);
+      throw error.response;
+    } else {
+      console.error("Network error:", error);
+      throw new Error("Network error or no response");
+    }
+  }
+};
+//add report
+const addReport = async (id: string, data: any) => {
+  try {
+    const endpoint = `/report/${id}`;
+    const response = await axios.post(endpoint, data);
+    return response.data;
+  } catch (error: unknown) {
+    console.error("Error submitting report:", error);
+    throw new Error("Network error or no response");
+  }
+};
 const obituaryService = {
   createObituary,
   getObituary,
@@ -204,6 +233,8 @@ const obituaryService = {
   burnCandle,
   fetchPendingPosts,
   changePostStatus,
+  assignKeeper,
+  addReport,
 };
 
 export default obituaryService;
