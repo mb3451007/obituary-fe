@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import API_BASE_URL from "@/config/apiConfig";
 import Image from "next/image";
 import ButtonBlue from "./ButtonBlue";
@@ -25,7 +25,14 @@ import { getYear, getMonth } from "date-fns"; // To extract year and month info
 import obituaryService from "@/services/obituary-service";
 import toast from "react-hot-toast";
 
-const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
+const Modals = ({
+  select_id,
+  set_Id,
+  selectedImage,
+  data,
+  updateObituary,
+  setIsShowModal,
+}) => {
   const musicList = [
     "BREZ glasbe",
     "Prva izbira",
@@ -45,7 +52,12 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
   const [uploadedPicture, setUploadedPicture] = useState(null);
   const [uploadedImage, setUploadedImage] = useState(null);
   const [verse, setVerse] = useState(null);
+  const [user, setUser] = useState(null);
 
+  //
+  const closeModal = () => {
+    setIsShowModal(false);
+  };
   //sorrow book
   const [name, setName] = useState(null);
   const [relation, setRelation] = useState(null);
@@ -56,24 +68,22 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
       title: setTitle,
       message: setMessage,
       name: setName,
+      relation: setRelation,
     };
 
     if (setters[field]) {
-      setters[field](null); // Call the correct state setter
+      setters[field](null);
     }
   };
+  // add sorrow book
   const addSorrowBook = async () => {
     if (!name || name.trim() === "") {
       toast.error("Please enter a name before submitting.");
       return;
     }
-    if (!user) {
-      toast.error("You must log in to update.");
-      return;
-    }
 
-    if (!memoryHasKeeper()) {
-      toast.error("Current Memory has no keeper! You cannot proceed");
+    if (!user) {
+      toast.error("You must log in to enter your name in list of sorrow book.");
       return;
     }
     const sorrowBookData = {
@@ -88,17 +98,21 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
       );
 
       console.log(`Sorrow Book Created successfully!`, response);
-      setName(null);
-      setRelation(null);
+
+      emptyField("name");
+      emptyField("relation");
+
       const updatedSorrowBooks = [...data.SorrowBooks, response];
       updateObituary({ ["SorrowBooks"]: updatedSorrowBooks });
       toast.success("Sorrow Book Created Successfully");
       updateObituary();
+      closeModal();
     } catch (error) {
       console.error("Failed to create SorrowBook:", error);
 
       if (error.status === 409) {
         toast.error("You are already in the Book of Sorrow.");
+        closeModal();
       } else {
         toast.error(
           error.data?.message || "Error Creating Sorrow Book. Please try again."
@@ -116,7 +130,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
       return;
     }
     if (!user) {
-      toast.error("You must log in to update.");
+      toast.error("You must log in to add dedication.");
       return;
     }
 
@@ -139,14 +153,17 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
 
       console.log(`Dedication Created successfully!`, response);
 
-      toast.success("Dedication Created Successfully");
       if (isKeeper()) {
         const updatedDedication = [...data.Dedications, response];
         updateObituary({ ["Dedications"]: updatedDedication });
+        toast.success("Dedication Created Successfully");
+      } else {
+        toast.success("Dedication Sent to Keeper for review!");
       }
       emptyField("name");
       emptyField("message");
       emptyField("title");
+      closeModal();
     } catch (error) {
       console.error(`Failed to create Dedication`, error);
       toast.error("Error Creating Dedication");
@@ -156,7 +173,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
   //add photo
   const addPhoto = async () => {
     if (!user) {
-      toast.error("You must log in to update.");
+      toast.error("You must log in to add photo.");
       return;
     }
 
@@ -175,14 +192,18 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
       const response = await obituaryService.addPhoto(data.id, formData);
 
       console.log(`Photo Sent to Keeper for review!`, response);
-      toast.success("Photo Sent to Keeper for review!");
+
       setUploadedPicture(null);
       setUploadedImage(null);
 
       if (isKeeper()) {
         const updatedPhoto = [...data.Photos, response];
         updateObituary({ ["Photos"]: updatedPhoto });
+        toast.success("Photo Added Successfully!");
+      } else if (!isKeeper()) {
+        toast.success("Photo Sent to Keeper for review!");
       }
+      closeModal();
     } catch (error) {
       console.error(`Failed to add  photo`, error);
       toast.error("Error Adding Photo");
@@ -192,7 +213,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
   //add condolence
   const addCondolence = async () => {
     if (!user) {
-      toast.error("You must log in to update.");
+      toast.error("You must log in to add condolence.");
       return;
     }
     if (!name?.trim()) {
@@ -225,17 +246,26 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
 
       console.log(`Condolence Created successfully!`, response);
 
-      toast.success("Condolence Created Successfully");
       emptyField("name");
       emptyField("message");
       emptyField("relation");
       if (isKeeper() || !isCustomMessage) {
         const updatedCondolences = [...data.Condolences, response];
         updateObituary({ ["Condolences"]: updatedCondolences });
+        toast.success("Condolence Created Successfully");
+      } else if (!isKeeper()) {
+        toast.success("Condolence Sent to Keeper for review!");
       }
+      closeModal();
     } catch (error) {
-      console.error(`Failed to create Condolence`, error);
-      toast.error("Error Creating Condolence");
+      if (error.status === 409) {
+        toast.error("You can only add a condolence once every 24 hours.");
+        closeModal();
+      } else {
+        toast.error(
+          error.data?.message || "Error Creating Condolence. Please try again."
+        );
+      }
     }
   };
 
@@ -262,6 +292,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
       toast.success("Report Submitted successfully");
       emptyField("name");
       emptyField("message");
+      closeModal();
     } catch (error) {
       console.error(`Failed to submit report`, error);
       toast.error("Error submitting report");
@@ -286,16 +317,15 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
     }));
   };
 
-  useEffect(() => {
-    console.log(newEvent);
-  }, [newEvent]);
   //checking if memory has keepers
   const memoryHasKeeper = () => {
     return data?.Keepers?.length > 0;
   };
   //checking if current user is keeper
   const isKeeper = () => {
-    return user?.id && data?.Keepers?.some((keeper) => keeper.id === user.id);
+    return (
+      user?.id && data?.Keepers?.some((keeper) => keeper.userId === user.id)
+    );
   };
 
   // Toggle function for each dropdown
@@ -331,7 +361,8 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
       }
 
       // Parse existing events and update
-      const parsedEvents = data?.events ? JSON.parse(data.events) : [];
+      const parsedEvents = data?.events ? data.events : [];
+
       const updatedEvents =
         parsedEvents.length > 0 ? [...parsedEvents, value] : [value];
 
@@ -363,9 +394,13 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
       }
       if (field === "picture") {
         updateObituary({ ["image"]: response.image });
+      }
+      if (field === "events") {
+        updateObituary({ [field]: JSON.parse(value) });
       } else {
         updateObituary({ [field]: value });
       }
+      closeModal();
     } catch (error) {
       console.error(`Failed to update ${field}:`, error);
       toast.error(`Failed to update ${field}`);
@@ -379,7 +414,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
   const minutes = Array.from({ length: 4 }, (_, i) => i * 15);
 
   const [selectMusic, setSelectMusic] = useState("");
-  const [user, setUser] = useState(null);
+
   //get current user
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -590,29 +625,28 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
   const [timeLeft, setTimeLeft] = useState(0);
 
   useEffect(() => {
-    if (!data?.candles[0].myLastBurntCandleTime) return;
-    console.log(data?.candles[0].myLastBurntCandleTime);
+    if (
+      !data?.candles ||
+      data.candles.length === 0 ||
+      !data.candles[0]?.myLastBurntCandleTime
+    )
+      return;
+
     const targetDate =
       new Date(data?.candles[0].myLastBurntCandleTime).getTime() +
       24 * 60 * 60 * 1000;
-
-    console.log(targetDate);
 
     const updateCountdown = () => {
       const now = new Date().getTime();
       const difference = targetDate - now;
       setTimeLeft(difference > 0 ? difference : 0);
-
-      console.log(`Target Date: ${new Date(targetDate).toISOString()}`);
-      console.log(`Current Time: ${new Date(now).toISOString()}`);
-      console.log(`Difference: ${targetDate - now} milliseconds`);
     };
 
     updateCountdown(); // Initial call
     const timer = setInterval(updateCountdown, 1000);
 
     return () => clearInterval(timer);
-  }, [data?.candles[0].myLastBurntCandleTime]);
+  }, [data?.candles]);
 
   const formatTime = (milliseconds) => {
     const totalSeconds = Math.floor(milliseconds / 1000);
@@ -624,6 +658,19 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
     const seconds = String(totalSeconds % 60).padStart(2, "0");
     console.log(`${hours}:${minutes}:${seconds}`);
     return `${hours}:${minutes}:${seconds}`;
+  };
+
+  //truncate file name
+  const truncateFileName = (fileName, maxLength) => {
+    const parts = fileName.split(".");
+    if (parts.length < 2) return fileName; // If no extension, return full name
+
+    const extension = parts.pop(); // Extract the file extension
+    const name = parts.join("."); // Handle cases where name includes dots
+
+    return name.length > maxLength
+      ? `${name.substring(0, maxLength)}...${extension}`
+      : fileName; // If name is short, return original
   };
 
   return (
@@ -846,7 +893,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
                 console.log(e.target.value);
                 setObituaryText(e.target.value);
               }}
-              maxLength={5000}
+              maxLength={1000}
             />
           </div>
           <div className="hidden mobile:flex mt-6 h-[306px] ">
@@ -856,7 +903,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
               }
               height={"306px"}
               value={obituaryText}
-              maxLength={5000}
+              maxLength={1000}
               onChange={(e) => setObituaryText(e.target.value)}
             />
           </div>
@@ -883,8 +930,9 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
               placeholder={"Poimenuj dogodek"}
               value={name}
               onChange={(e) => {
-                setName(e.target.value);
-                updateEventField("eventName", name);
+                const newValue = e.target.value;
+                setName(newValue);
+                updateEventField("eventName", newValue);
               }}
             />
           </div>
@@ -893,8 +941,9 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
               placeholder={"Kje poteka"}
               value={location}
               onChange={(e) => {
-                setLocation(e.target.value);
-                updateEventField("eventLocation", location);
+                const newValue = e.target.value;
+                setLocation(newValue);
+                updateEventField("eventLocation", newValue);
               }}
             />
           </div>
@@ -1047,19 +1096,21 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
             {showHoursDropdown && (
               <div className="bg-white border overflow-y-scroll mt-12 h-[210px] absolute border-gray-300 rounded-md m-2 w-32 z-10">
                 <div className="flex p-2 flex-col">
-                  {hours.map((hour) => (
-                    <div
-                      key={hour}
-                      className="cursor-pointer hover:bg-gray-100 px-2 py-1 text-black"
-                      onClick={() => {
-                        setShowHoursDropdown(false);
-                        setSelectedHour(hour);
-                        updateEventField("eventHour", hour);
-                      }}
-                    >
-                      {hour.toString().padStart(2, "0")}
-                    </div>
-                  ))}
+                  {hours
+                    .filter((hour) => hour >= 7 && hour <= 19)
+                    .map((hour) => (
+                      <div
+                        key={hour}
+                        className="cursor-pointer hover:bg-gray-100 px-2 py-1 text-black"
+                        onClick={() => {
+                          setShowHoursDropdown(false);
+                          setSelectedHour(hour);
+                          updateEventField("eventHour", hour);
+                        }}
+                      >
+                        {hour.toString().padStart(2, "0")}
+                      </div>
+                    ))}
                 </div>
               </div>
             )}
@@ -1304,9 +1355,14 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
             Prijava napak
           </div>
           <div className="mt-6">
-            <TextFieldComp placeholder={data?.name} readOnly />
+            <TextFieldComp
+              value={`${data?.name} ${data?.sirName}`}
+              readOnly
+              background="none"
+              textColor="#3C3E41"
+            />
           </div>
-          <div className="flex mt-6 w-[70%] mobile:w-[100%] ">
+          <div className="flex mt-6 w-[100%] mobile:w-[100%] ">
             <DescriptionFieldComp
               placeholder={"Tvoje ime"}
               height={"48px"}
@@ -1387,7 +1443,12 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
           </div>
 
           <div className="mt-[22px]">
-            <TextFieldComp placeholder={placeholderName} readOnly />
+            <TextFieldComp
+              value={placeholderName}
+              readOnly
+              background="none"
+              textColor="#3C3E41"
+            />
           </div>
 
           <div className="text-[14px] leading-[20px] font-variation-customOpt14 text-[#1E2125] mt-[32px]">
@@ -1495,24 +1556,34 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
       {select_id == "3" ? (
         <div>
           <video
-            src="/candleburn.mov"
             width={300}
             height={153}
             className="mx-auto hidden mobile:block"
             autoPlay
             muted
             playsInline
-          />
+          >
+            <source
+              src={`${API_BASE_URL}/obituaryUploads/assets/candleBurn.mp4`}
+              type="video/mp4"
+            />
+            Your browser does not support the video tag.
+          </video>
 
           <video
-            src="/candleburn.mov"
-            width={392}
-            height={200}
+            width={300}
+            height={153}
             className="mx-auto mobile:hidden block"
             autoPlay
             muted
             playsInline
-          />
+          >
+            <source
+              src={`${API_BASE_URL}/obituaryUploads/assets/candleBurn.mp4`}
+              type="video/mp4"
+            />
+            Your browser does not support the video tag.
+          </video>
 
           <div
             className="text-[#1E2125] flex justify-center mt-[16px] mobile:text-[20px] text-[24px] mobile:leading-[23px]
@@ -1538,7 +1609,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
 
           <div className="mt-[45px] flex flex-row justify-center mobile:hidden">
             <div className="text-[14px] text-[#1E2125] leading-[16px] font-variation-customOpt14 mr-[10px]">
-              {strings.ZadnjaPrižganaSvečka}
+              Zadnja prižgana svečka:
             </div>
 
             <div className="text-[14px] text-[#1E2125] leading-[16px] font-variation-customOpt14 font-medium">
@@ -1648,7 +1719,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
               <ButtonBlue
                 placeholder={
                   uploadedImage
-                    ? uploadedPicture.name
+                    ? truncateFileName(uploadedPicture.name, 10)
                     : "Izberi sliko in jo prenesi"
                 }
                 isFor="upload-button"
@@ -1769,24 +1840,24 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
       {select_id == "14" ? (
         <div className="flex flex-col w-full ">
           <div
-            className="text-[#1E2125] text-[24px] leading-[28px] font-variation-customOpt24 text-center font-medium mobile:text-[20px] mobile:leading-[28px]
+            className="text-[#1E2125] text-[32px]  leading-[28px] font-semibold font-variation-customOpt24 text-center  mobile:text-[28px] mobile:leading-[28px]
           mobile:font-variation-customOpt20"
           >
-            Dopolni spominsko stran
+            Še dodatne možnosti
           </div>
 
           <div
-            className="text-[#1E2125] text-[32px] mt-3 leading-[28px] font-variation-customOpt32 text-center font-semibold mobile:text-[24px] mobile:leading-[23px]
+            className="text-[#1E2125] text-[24px] font-medium mt-2 leading-[28px] font-variation-customOpt32 text-center  mobile:text-[16px] mobile:leading-[23px]
           mobile:font-variation-customOpt24"
           >
-            {data?.name}
+            ko ima stran svojega Skrbnika
           </div>
 
           <div
-            className="text-[#1E2125] text-[20px] mt-8 leading-[28px] font-variation-customOpt20 text-center font-normal mobile:text-[16px] 
+            className="text-[#1E2125] text-[20px] mt-10 font-normal leading-[28px] font-variation-customOpt20 text-center  mobile:text-[18px] 
           mobile:font-variation-customOpt16"
           >
-            Možnosti za Skrbnika
+            Možnosti za VSE
           </div>
           <div className=" w-full  flex-col">
             {customButtonData?.map((item, index) => {
@@ -1795,13 +1866,13 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
                   {index === 4 && (
                     <React.Fragment>
                       <div
-                        className="text-[#1E2125] text-[20px] mb-10 leading-[28px] font-variation-customOpt20 text-center font-normal mobile:text-[16px] 
+                        className="text-[#1E2125] text-[16px]  mb-14 leading-[28px] font-medium mobile:font-normal font-variation-customOpt20 text-center  mobile:text-[14px] 
           mobile:font-variation-customOpt16"
                       >
                         Objavo na strani mora potrditi Skrbnik.
                       </div>
                       <div
-                        className="text-[#1E2125] text-[20px]  leading-[28px] font-variation-customOpt20 text-center font-normal mobile:text-[16px] 
+                        className="text-[#1E2125] text-[20px] font-normal  leading-[28px] font-variation-customOpt20 text-center  mobile:text-[18px] 
           mobile:font-variation-customOpt16"
                       >
                         Možnosti za SKRBNIKA
@@ -1819,7 +1890,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
           </div>
 
           <div
-            className="text-[#1E2125] text-[16px] mt-8 leading-[22px] font-variation-customOpt16 text-center font-medium mobile:text-[13px] 
+            className="text-[#1E2125] text-[16px] font-medium mt-2 leading-[22px] font-variation-customOpt16 text-center mobile:font-normal  mobile:text-[14px] 
           mobile:font-variation-customOpt13"
           >
             Kmalu še več možnosti za Skrbnika
@@ -1940,7 +2011,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
             className="text-[#1E2125] mobile:text-nowrap text-[36px] mt-[32px] leading-[42px] font-variation-customOpt36 mobile:font-variation-customOpt24 text-center font-light mobile:text-[24px] 
                 "
           >
-            {data?.name}
+            {data?.name} {data?.sirName}
           </div>
 
           <div
@@ -1989,12 +2060,14 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
           </div>
 
           <div className="flex mx-[20px] mobile:mx-0 mt-8 items-end flex-col">
-            <div className=" flex text-[32px] mobile:text-[20px] text-[#414B5A] font-greatVibes font-normal">
-              The song is ended but the melody lingers on.
+            <div className=" flex text-[24px] mobile:text-[20px] text-[#414B5A] font-greatVibes font-normal">
+              {data?.verse}
             </div>
-            <div className=" flex text-[20px] text-[#414B5A] font-greatVibes font-normal">
-              Irving Berlin
-            </div>
+            {data?.verse && (
+              <div className=" flex text-[20px] text-[#414B5A] font-greatVibes font-normal">
+                Irving Berlin
+              </div>
+            )}
           </div>
 
           <div className="rounded-[6px] mt-8 bg-[#F2F8FF66] shadow-custom-dark-to-white w-full py-[17px]">
@@ -2061,6 +2134,7 @@ const Modals = ({ select_id, set_Id, selectedImage, data, updateObituary }) => {
 };
 
 function CommonStyle({ item, index, key }) {
+  const gradientClass = useMemo(() => getRandomGradientClass(), [item?.user]);
   return (
     <div
       key={key}
@@ -2070,23 +2144,7 @@ function CommonStyle({ item, index, key }) {
     >
       <div
         className={`py-[10px] border-2 text-[#6D778E]
-       ${
-         item.color === "pinkBorder"
-           ? "border-[#F1A5F3] bg-gradient-to-r from-[#F1A5F340] to-[#FFFFFF30]"
-           : item.color === "purpleBorder"
-           ? "border-[#A6A5F3] bg-gradient-to-r from-[#A6A5F340] to-[#FFFFFF30]"
-           : item.color === "orangeBorder"
-           ? "border-[#EDCBAB] bg-gradient-to-r from-[#EDCBAB40] to-[#FFFFFF30]"
-           : item.color === "blueBorder"
-           ? "border-[#ABEDED] bg-gradient-to-r from-[#ABEDED40] to-[#FFFFFF30]"
-           : item.color === "redBorder"
-           ? "border-[#F3A5B3] bg-gradient-to-r from-[#F3A5B340] to-[#FFFFFF30]"
-           : item.color === "greenBorder"
-           ? "border-[#D0EDAB] bg-gradient-to-r from-[#ABEDED40] to-[#FFFFFF30]"
-           : item.color === "whiteBorder"
-           ? "border-[#FFFFFF] bg-gradient-to-r from-[#FFFFFF40] to-[#FFFFFF30]"
-           : " border-[#B9D1DF] bg-gradient-to-r from-[#B9D1DF40] to-[#FFFFFF30"
-       } w-11 h-11 ml-8 mobile:ml-4 rounded-full text-center`}
+       ${gradientClass} w-11 h-11 ml-8 mobile:ml-4 rounded-full text-center`}
       >
         {(() => {
           const nameParts = item?.name?.split(" ") || [];
@@ -2106,6 +2164,34 @@ function CommonStyle({ item, index, key }) {
     </div>
   );
 }
+
+const gradientStyles = [
+  {
+    class: "bg-gradient-to-br from-[#F1A5F380] to-[#FFFFFF30] border-[#F1A5F3]",
+  },
+  {
+    class: "bg-gradient-to-br from-[#FFFFFF80] to-[#FFFFFF30] border-[#FFFFFF]",
+  },
+  {
+    class: "bg-gradient-to-br from-[#A6A5F380] to-[#FFFFFF30] border-[#A6A5F3]",
+  },
+  {
+    class: "bg-gradient-to-br from-[#ABEDED80] to-[#FFFFFF30] border-[#ABEDED]",
+  },
+  {
+    class: "bg-gradient-to-br from-[#F3ACA580] to-[#FFFFFF30] border-[#F3ACA5]",
+  },
+  {
+    class: "bg-gradient-to-br from-[#B9D1DF80] to-[#FFFFFF30] border-[#B9D1DF]",
+  },
+  {
+    class: "bg-gradient-to-br from-[#B2E6E380] to-[#FFFFFF30] border-[#B2E6E3]",
+  },
+];
+const getRandomGradientClass = () => {
+  const randomIndex = Math.floor(Math.random() * gradientStyles.length);
+  return gradientStyles[randomIndex].class;
+};
 
 function CommonView({ text, key, onPress, selectMusic }) {
   return (

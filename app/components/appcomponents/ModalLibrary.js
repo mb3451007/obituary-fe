@@ -55,6 +55,7 @@ export default function ModalLibrary({
                 selectedImage={selectedImage}
                 data={data}
                 updateObituary={updateObituary}
+                setIsShowModal={setIsShowModal}
               />
             </div>
           </div>

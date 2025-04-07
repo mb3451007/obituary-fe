@@ -36,6 +36,14 @@ const ObituaryCard = ({ data, key, index, mob }) => {
     .toString()
     .padStart(2, "0")}${funeralDate.getFullYear().toString().slice(2)}`;
 
+  const religionImages = {
+    1: "/icon_cross.png",
+    2: "/img_plus2.png",
+    3: "/img_moon_star.png",
+    4: "/img_plus3.png",
+    5: "/img_star.png",
+  };
+
   return (
     <Link
       href={`/memorypage/${data.id}/${data.name}_${data.sirName}_${funeralDateFormatted}`}
@@ -73,11 +81,18 @@ const ObituaryCard = ({ data, key, index, mob }) => {
                   {data.name} {data.sirName}
                 </div>
                 <p
-                  className=" font-variation-customOpt14 tablet:font-variation-customOpt16 
+                  className="hidden desktop:block font-variation-customOpt14 tablet:font-variation-customOpt16 
                   desktop:font-variation-customOpt16 text-left desktop:mt-[16px] tablet:mt-[16px]  
                   desktop:text-[16px] tablet:text-[16px] mobile:text-[14px]  text-[#414141] leading-[24px]"
                 >
                   {formattedBirthDate} – {formattedDeathDate} ({age} let)
+                </p>
+                <p
+                  className="hidden mobile:block tablet:block font-variation-customOpt14 tablet:font-variation-customOpt16 
+                  desktop:font-variation-customOpt16 text-left desktop:mt-[16px] tablet:mt-[16px]  
+                  desktop:text-[16px] tablet:text-[16px] mobile:text-[14px]  text-[#414141] leading-[24px]"
+                >
+                  {formattedBirthDate} – {formattedDeathDate}
                 </p>
                 <div
                   className="flex h-[18px] tablet:h-6 
@@ -112,7 +127,7 @@ const ObituaryCard = ({ data, key, index, mob }) => {
             </div>
           </div>
         </div>
-        {data?.name == "Mario Danilo Primo" && !mob && (
+        {data?.symbol && !mob && (
           <div
             className="absolute z-40 flex justify-end 
               mobile:w-[171px] 
@@ -121,15 +136,17 @@ const ObituaryCard = ({ data, key, index, mob }) => {
               "
           >
             <Image
-              src={"/icon_cross.png"}
+              src={religionImages[data.symbol]}
               alt="Description of the image"
               width={1000}
               height={1000}
-              className="h-[65px] w-[51px]"
+              className={`w-[51px] ${
+                data.symbol === "3" ? "h-[50px]" : "h-[55px]"
+              }`}
             />
           </div>
         )}
-        {data?.name == "Mario Danilo Primo" && mob && (
+        {data?.symbol && mob && (
           <div
             className=" absolute z-45 flex justify-end 
               w-[171px]  mobile:mt-[28.26px] pr-[3px]
@@ -137,7 +154,7 @@ const ObituaryCard = ({ data, key, index, mob }) => {
               "
           >
             <Image
-              src={"/icon_cross.png"}
+              src={religionImages[data.symbol]}
               alt="Description of the image"
               width={500}
               height={500}

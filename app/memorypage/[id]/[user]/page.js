@@ -114,12 +114,12 @@ const MemoryPage = ({ params }) => {
   };
 
   useEffect(() => {
-    console.log(obituary);
+    console.log(obituary, "-------------------");
   }, [obituary]);
 
   return (
     <Layout from={"3"} forFooter={"memorypage"}>
-      <div className="flex flex-1 flex-col mx-auto bg-[#ecf0f3]">
+      <div className="flex flex-1 flex-col mx-auto bg-[#ecf0f3] ">
         <ModalLibrary
           isShowModal={isShowModal}
           setIsShowModal={setIsShowModal}
@@ -143,7 +143,7 @@ const MemoryPage = ({ params }) => {
         />
         {obituary?.Dedications?.length > 0 && (
           <SanctifiedComp
-            data={obituary.Dedications}
+            dedications={obituary.Dedications}
             set_Id={setSelect_Id}
             setModal={setIsShowModal}
           />
@@ -173,13 +173,14 @@ const MemoryPage = ({ params }) => {
           setModal={setIsShowModal}
           data={obituary}
         />
-        <div
+        <a
           className="z-50 bottom-10 right-10 fixed w-[48px] h-[48px] mt-[26px] 
                 shadow-custom-light-dark bg-gradient-to-br from-[#E3E8EC] to-[#FFFFFF]
                 flex justify-center items-center rounded-lg"
+          href="#memoryPageTop"
         >
           <Image src={imgUp} alt="imgPrevious" className=" w-[24px] h-[24px]" />
-        </div>
+        </a>
       </div>
     </Layout>
   );

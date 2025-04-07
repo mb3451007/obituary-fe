@@ -134,9 +134,14 @@ const createCondolence = async (id: string, data: any) => {
     const endpoint = `/condolence/${id}`;
     const response = await axios.post(endpoint, data);
     return response.data;
-  } catch (error: unknown) {
-    console.error("Error creating condolence:", error);
-    throw new Error("Network error or no response");
+  } catch (error: any) {
+    if (error.response) {
+      console.error("API Error:", error.response.data);
+      throw error.response;
+    } else {
+      console.error("Network error:", error);
+      throw new Error("Network error or no response");
+    }
   }
 };
 

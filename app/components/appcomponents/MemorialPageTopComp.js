@@ -1,6 +1,6 @@
 import API_BASE_URL from "@/config/apiConfig";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import toast from "react-hot-toast";
 
@@ -9,7 +9,7 @@ import obituaryService from "@/services/obituary-service";
 const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
   const [currentURL, setCurrentURL] = useState("");
   const [user, setUser] = useState(null);
-  const [showFullObituaryText, setShowFullObituaryText] = useState(false);
+
   const toggleText = () => {
     setShowFullObituaryText((prev) => !prev);
   };
@@ -27,7 +27,7 @@ const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
     }
   }, []);
 
-  const parsedEvents = data?.events ? data.events : [];
+  const parsedEvents = data?.events ? data?.events : [];
 
   const handleCopyURL = () => {
     navigator.clipboard
@@ -102,10 +102,30 @@ const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
       setModal("true");
     }
   };
+
+  //obituary text setting
+  const [showFullObituaryText, setShowFullObituaryText] = useState(false);
+
+  const toggleObituaryText = () => {
+    setShowFullObituaryText((prev) => !prev);
+  };
+
+  const characterLimit = 1200;
+  const obituary = data?.obituary || "";
+  const shouldTruncate = obituary.length > characterLimit;
+
+  const displayedObituary =
+    showFullObituaryText || !shouldTruncate
+      ? obituary
+      : obituary.slice(0, characterLimit);
+
   return (
-    <div className="flex flex-col w-full  items-center  justify-center">
+    <div
+      id="memoryPageTop"
+      className="flex flex-col w-full  items-center  justify-center "
+    >
       <div
-        className="bg-[#ecf0f3] h-auto w-full flex justify-center 
+        className="bg-[#ecf0f3]   w-full flex justify-center 
       mt-[57px] tablet:mt-[60px] desktop:mt-0   pt-[60px] "
       >
         <div
@@ -113,16 +133,17 @@ const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
                w-[100%] px-[14px] tablet:px-0 desktop:px-0
                tablet:w-[525px]
                desktop:w-[1089px]  
-               desktop:h-auto             
+            desktop:h-[auto]    
+       
                "
         >
-          <div className="flex desktop:h-full  flex-col desktop:flex-row w-[100%] ">
-            <div className="flex  w-[100%] justify-center desktop:w-[50%]  ">
-              <div className="flex sticky flex-col top-[90px] desktop:h-[60%] w-[100%]  ">
+          <div className="flex desktop:h-auto  flex-col desktop:flex-row w-[100%] min-h-screen  relative ">
+            <div className="flex  w-[100%] justify-center desktop:w-[50%]  desktop:h-screen static desktop:sticky top-20 ">
+              <div className="flex  flex-col  desktop:h-[60%] w-[100%]  ">
                 <div className="flex  flex-col w-[100%]  items-center ">
                   <div className="hidden desktop:flex h-[30px]" />
                   <div className=" ">
-                    <div className="text-[64px] text-[#414141] font-greatVibes font-normal ">
+                    <div className="text-[64px]   text-[#414141] font-greatVibes font-normal ">
                       V spomin
                     </div>
                   </div>
@@ -149,7 +170,7 @@ const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
                     />
                   </div>
                   <div className="flex flex-col justify-center mt-[50px]">
-                    <div className="flex items-center justify-center h-[33px] tablet:h-[47px] desktop:h-[47px]">
+                    <div className="flex items-center justify-center h-[33px] tablet:h-[47px] desktop:h-[40px]">
                       <h1 className="text-[#1E2125] text-[28px] tablet:text-[40px] desktop:text-[40px] font-variation-customOpt28 tablet:font-variation-customOpt40 desktop:font-variation-customOpt40 font-normal">
                         {data.name && data.sirName
                           ? `${formatTitleCase(data.name)} ${formatTitleCase(
@@ -167,21 +188,24 @@ const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
                           : ""}
                       </h1>
                     </div>
-                    <div className="flex items-center justify-center mt-[14px] h-[21px] tablet:h-[23px] desktop:h-[23px] ">
+                    <div className="flex items-center justify-center mt-[14px] h-[21px] tablet:h-[23px] desktop:h-[20px] ">
                       <div className="text-[#1E2125] text-[18px] tablet:text-[20px] desktop:text-[20px] font-variation-customOpt18 tablet:font-variation-customOpt20 desktop:font-variation-customOpt20 font-normal">
                         {formattedBirthDate} - {formattedDeathDate}
                       </div>
                     </div>
-                    <div className="flex items-center justify-center mt-[14px] h-[21px] tablet:h-[23px] desktop:h-[23px] ">
+                    <div className="flex items-center justify-center mt-[14px] h-[21px] tablet:h-[23px] desktop:h-[20px] ">
                       <div className="text-[#414141] text-[18px] tablet:text-[20] desktop:text-[20px] font-variation-customOpt18 tablet:font-variation-customOpt20 desktop:font-variation-customOpt20 font-normal">
                         {data.location ? formatTitleCase(data.location) : ""}
                       </div>
                     </div>
-                    <div className="flex flex-col w-[100%] mt-[40px] tablet:[31px] desktop:mt-[30px] h-[50px] ">
+                    <div className="flex flex-col w-[100%] mt-[40px] tablet:[31px] desktop:mt-[30px] h-[45px] ">
                       <p className="text-[24px] text-[#414141] font-normal font-greatVibes text-center">
-                        The song is ended but the melody lingers on.
+                        {data?.verse
+                          ? data?.verse
+                          : "The song is ended but the melody lingers on."}
                       </p>
-                      <p className="text-[20px] text-[#414141] font-normal font-greatVibes text-center desktop:text-end">
+
+                      <p className="text-[16px] text-[#414141] font-normal font-greatVibes text-center desktop:text-end">
                         Irving Berlin
                       </p>
                     </div>
@@ -194,7 +218,7 @@ const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
                                           pl-[62%] tablet:pl-0 desktop:pl-0 tablet:w-[525px]  desktop:w-[545px] "
                     >
                       <div
-                        className=" flex self-center mt-[50px]  desktop:mt-[168px]
+                        className=" flex self-center mt-[50px]  desktop:mt-[160px]
                                               tablet:w-[90%] tablet:justify-end tablet:mt-[108px] desktop:w-[540px] desktop:pt-[0px] desktop:pl-[389px]
                                         "
                       >
@@ -204,7 +228,7 @@ const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
                             alt="Description of the image"
                             width={1000}
                             height={1000}
-                            className="h-[94.29px] w-[73.19px] tablet:h-[116px] tablet:w-[89px] desktop:h-[116px] desktop:w-[89px] "
+                            className="h-[94.29px] w-[73.19px] tablet:h-[116px] tablet:w-[89px] desktop:h-[105px] desktop:w-[89px] "
                           />
                         )}
                         {data.symbol === "2" && (
@@ -213,7 +237,7 @@ const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
                             alt="Description of the image"
                             width={1000}
                             height={1000}
-                            className="h-[94.29px] w-[73.19px] tablet:h-[116px] tablet:w-[89px] desktop:h-[116px] desktop:w-[89px] "
+                            className="h-[94.29px] w-[73.19px] tablet:h-[116px] tablet:w-[89px] desktop:h-[105px] desktop:w-[89px] "
                           />
                         )}
                         {data.symbol === "3" && (
@@ -222,7 +246,7 @@ const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
                             alt="Description of the image"
                             width={1000}
                             height={1000}
-                            className="h-[94.29px] w-[73.19px] tablet:h-[116px] tablet:w-[89px] desktop:h-[116px] desktop:w-[89px] "
+                            className="h-[94.29px] w-[73.19px] tablet:h-[116px] tablet:w-[89px] desktop:h-[85px] desktop:w-[89px] "
                           />
                         )}
                         {data.symbol === "4" && (
@@ -231,7 +255,7 @@ const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
                             alt="Description of the image"
                             width={1000}
                             height={1000}
-                            className="h-[94.29px] w-[73.19px] tablet:h-[116px] tablet:w-[89px] desktop:h-[116px] desktop:w-[89px] "
+                            className="h-[94.29px] w-[73.19px] tablet:h-[116px] tablet:w-[89px] desktop:h-[105px] desktop:w-[89px] "
                           />
                         )}
                         {data.symbol === "5" && (
@@ -240,7 +264,7 @@ const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
                             alt="Description of the image"
                             width={1000}
                             height={1000}
-                            className="h-[94.29px] w-[73.19px] tablet:h-[116px] tablet:w-[89px] desktop:h-[116px] desktop:w-[89px] "
+                            className="h-[94.29px] w-[73.19px] tablet:h-[116px] tablet:w-[89px] desktop:h-[105px] desktop:w-[89px] "
                           />
                         )}
                       </div>
@@ -299,7 +323,7 @@ const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
                 )}
               </div>
             </div>
-            <div className="flex w-[100%] desktop:pt-[15px] mt-[72px] desktop:mt-0 desktop:w-[50%] h-[100%] ">
+            <div className="flex w-[100%]    desktop:mt-0 desktop:w-[50%]   ">
               <div className="flex flex-col w-[100%]   desktop:items-end ">
                 <div className="hidden desktop:flex h-[70px] w-full" />
                 <div
@@ -317,14 +341,18 @@ const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
                   </div>
                   <div className="bg-[#D4D4D4] h-[1px] w-[100%] my-4 " />
                   {/* <div className="flex h-[79px] desktop:h-[71px] bg-yellow-400"> */}
-                  <div className="flex desktop:pb-[20px] pb-[15px] h-[200px] overflow-auto">
+                  <div className="flex desktop:pb-[20px] pb-[15px]    ">
                     <p className="text-[#414141] text-[16px] font-variation-customOpt16 font-normal leading-6 ">
-                      {showFullObituaryText || data?.obituary?.length <= 1200
-                        ? data?.obituary
-                        : `${data?.obituary?.slice(0, 1200)}...`}
-                      {data?.obituary?.length > 1200 && (
+                      {displayedObituary.split("\n").map((line, index) => (
+                        <React.Fragment key={index}>
+                          {line}
+                          <br />
+                        </React.Fragment>
+                      ))}
+
+                      {shouldTruncate && (
                         <button
-                          onClick={toggleText}
+                          onClick={toggleObituaryText}
                           className="text-blue-500 ml-2"
                         >
                           {showFullObituaryText ? "See Less" : "See More"}
@@ -771,9 +799,15 @@ const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
                 Žalna knjiga
               </div>
             </div>
-            <div className="flex items-center mt-4 h-6 ">
+            <div
+              className="flex items-center mt-4 h-6 cursor-pointer"
+              onClick={() => {
+                set_Id("20");
+                setModal(true);
+              }}
+            >
               <p className="text-[16px] text-[#414141] font-variation-customOpt16 font-normal">
-                Vpiši se v Žalno knjigo
+                Odpri knjigo
               </p>
             </div>
           </div>
@@ -792,42 +826,46 @@ const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
           </div>
         </div>
       </div>
-      <div
-        className="ml-auto mr-[14px] mb-10 desktop:mr-[18%] flex items-center cursor-pointer "
-        onClick={() => {
-          set_Id("13");
-          setModal(true);
-        }}
-      >
-        <Image
-          src={"/round_add.png"}
-          alt="Description of the image"
-          width={100}
-          height={100}
-          className="w-[12px] h-[12px] mr-[10px]"
-        />
-        <p className="text-[12px] text-[#414141] font-variation-customOpt12 font-normal">
-          Dodaj posvetilo
-        </p>
-      </div>
-      <div
-        className="ml-auto mr-[14px] desktop:mr-[18%] flex items-center cursor-pointer "
-        onClick={() => {
-          set_Id("6");
-          setModal(true);
-        }}
-      >
-        <Image
-          src={"/round_add.png"}
-          alt="Description of the image"
-          width={100}
-          height={100}
-          className="w-[12px] h-[12px] mr-[10px]"
-        />
-        <p className="text-[12px] text-[#414141] font-variation-customOpt12 font-normal">
-          Dodaj fotografije
-        </p>
-      </div>
+      {data?.Dedications && data?.Dedications.length > 0 ? null : (
+        <div
+          className="ml-auto mr-[14px] mb-10 desktop:mr-[18%] flex items-center cursor-pointer "
+          onClick={() => {
+            set_Id("13");
+            setModal(true);
+          }}
+        >
+          <Image
+            src={"/round_add.png"}
+            alt="Description of the image"
+            width={100}
+            height={100}
+            className="w-[12px] h-[12px] mr-[10px]"
+          />
+          <p className="text-[12px] text-[#414141] font-variation-customOpt12 font-normal">
+            Dodaj posvetilo
+          </p>
+        </div>
+      )}
+      {data?.Photos && data?.Photos.length > 0 ? null : (
+        <div
+          className="ml-auto mr-[14px] desktop:mr-[18%] flex items-center cursor-pointer "
+          onClick={() => {
+            set_Id("6");
+            setModal(true);
+          }}
+        >
+          <Image
+            src={"/round_add.png"}
+            alt="Description of the image"
+            width={100}
+            height={100}
+            className="w-[12px] h-[12px] mr-[10px]"
+          />
+          <p className="text-[12px] text-[#414141] font-variation-customOpt12 font-normal">
+            Dodaj fotografije
+          </p>
+        </div>
+      )}
     </div>
   );
 };
@@ -874,28 +912,12 @@ const UserCircles = ({ onTextClick, onCircle, users }) => {
   );
 };
 const Container = ({ index, item, key, onCircleClick }) => {
+  const gradientClass = useMemo(() => getRandomGradientClass(), [item?.user]);
   return (
     <button
       onClick={onCircleClick}
       key={index}
-      className={`flex border-2 backdrop-blur-lg cursor-pointer ${
-        (item?.border,
-        item?.user == "JK"
-          ? "bg-gradient-to-br from-[#F1A5F380] to-[#FFFFFF30] border-[#F1A5F3]"
-          : item?.user == "A"
-          ? "bg-gradient-to-br from-[#FFFFFF80] to-[#FFFFFF30] border-[#FFFFFF]"
-          : item?.user == "CJ"
-          ? "bg-gradient-to-br from-[#A6A5F380] to-[#FFFFFF30] border-[#A6A5F3]"
-          : item?.user == "K"
-          ? "bg-gradient-to-br from-[#ABEDED80] to-[#FFFFFF30] border-[#ABEDED]"
-          : item?.user == "B"
-          ? "bg-gradient-to-br from-[#F3ACA580] to-[#FFFFFF30] border-[#F3ACA5]"
-          : item?.user == "AS"
-          ? "bg-gradient-to-br from-[#B9D1DF80] to-[#FFFFFF30] border-[#B9D1DF]"
-          : item?.user == "M"
-          ? "bg-gradient-to-br from-[#B2E6E380] to-[#FFFFFF30] border-[#B2E6E3]"
-          : "bg-gradient-to-br from-[#FFFFFF80] to-[#FFFFFF30] border-[#FFFFFF]")
-      }  items-center justify-center w-[64px] h-[64px] rounded-full ml-[-10px]  `}
+      className={`flex border-2 backdrop-blur-lg cursor-pointer ${gradientClass} items-center justify-center w-[64px] h-[64px] rounded-full ml-[-10px]`}
       style={{ backgroundColor: getRandomColor() }}
     >
       <div className="text-[20px] text-[#1E2125] font-normal ">
@@ -914,6 +936,35 @@ const Container = ({ index, item, key, onCircleClick }) => {
     </button>
   );
 };
+
+const gradientStyles = [
+  {
+    class: "bg-gradient-to-br from-[#F1A5F380] to-[#FFFFFF30] border-[#F1A5F3]",
+  },
+  {
+    class: "bg-gradient-to-br from-[#FFFFFF80] to-[#FFFFFF30] border-[#FFFFFF]",
+  },
+  {
+    class: "bg-gradient-to-br from-[#A6A5F380] to-[#FFFFFF30] border-[#A6A5F3]",
+  },
+  {
+    class: "bg-gradient-to-br from-[#ABEDED80] to-[#FFFFFF30] border-[#ABEDED]",
+  },
+  {
+    class: "bg-gradient-to-br from-[#F3ACA580] to-[#FFFFFF30] border-[#F3ACA5]",
+  },
+  {
+    class: "bg-gradient-to-br from-[#B9D1DF80] to-[#FFFFFF30] border-[#B9D1DF]",
+  },
+  {
+    class: "bg-gradient-to-br from-[#B2E6E380] to-[#FFFFFF30] border-[#B2E6E3]",
+  },
+];
+const getRandomGradientClass = () => {
+  const randomIndex = Math.floor(Math.random() * gradientStyles.length);
+  return gradientStyles[randomIndex].class;
+};
+
 const getRandomColor = () => {
   const colors = [
     "bg-red-200",

@@ -1,5 +1,6 @@
 import axios from "axios";
 import API_BASE_URL from "@/config/apiConfig";
+import toast from "react-hot-toast";
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -42,10 +43,10 @@ axiosInstance.interceptors.response.use(
       localStorage.removeItem("access-token");
       localStorage.removeItem("refresh-token");
       localStorage.removeItem("user");
-
-      if (window.location.pathname !== "/registrationpage") {
-        window.location.href = "/registrationpage";
-      }
+      toast.error("Token Expired Please Relogin!");
+      // if (window.location.pathname !== "/registrationpage") {
+      //   window.location.href = "/registrationpage";
+      // }
     } else if (error.response.status === 403) {
       if (window.location.pathname !== "/") {
         window.location.href = "/";

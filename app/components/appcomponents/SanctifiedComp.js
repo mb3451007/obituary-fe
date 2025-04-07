@@ -1,46 +1,75 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 const images = [
   {
     name: "Elizabeta Škorjanc",
     dates: "29.01.2024",
     image: "/user1.jpeg",
+    description: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                eiusmod tempor incididunt ut labore Lorem ipsum dolor sit amet,
+                consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+labore`,
   },
   {
     name: "Marija Špes",
     dates: "29.01.2024",
     image: "/user2.jpeg",
+    description: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                eiusmod tempor incididunt ut labore Lorem ipsum dolor sit amet,
+                consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+labore`,
   },
   // 7 October 2024
   {
     name: "Dragi moj Mario",
     dates: "15.01.2024",
     image: "/sveca_gori.avif",
+    description: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                eiusmod tempor incididunt ut labore Lorem ipsum dolor sit amet,
+                consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+labore`,
   },
   {
     name: "Mario Danilo Primo",
     dates: "29.01.2024)",
     image: "/mario_danilo_primo.avif",
+    description: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                eiusmod tempor incididunt ut labore Lorem ipsum dolor sit amet,
+                consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+labore`,
   },
   {
     name: "Alojz Lavbič",
     dates: "28.01.2024",
     image: "/user4.jpeg",
+    description: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                eiusmod tempor incididunt ut labore Lorem ipsum dolor sit amet,
+                consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+labore`,
   },
 
   {
     name: "Miroslav Vodnik",
     dates: "28.01.2024",
     image: "/user5.jpeg",
+    description: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                eiusmod tempor incididunt ut labore Lorem ipsum dolor sit amet,
+                consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+labore
+Coredolor sit amet, consectetur adipiscing elit, sed do eiusmod
+                incididunt ut labore Lorem ipsum dolor sit amet, consectetur
+                elit, sed do eiusmod tempor incididunt ut labore Lorem ipsum
+                dolor sit amet, consectetur elit, sed do eiusmod tempor
+                incididunt ut labore Ansectetur elit.`,
   },
 ];
 
-const SanctifiedComp = ({ set_Id, setModal, data }) => {
+const SanctifiedComp = ({ set_Id, setModal, dedications }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [dedications, setDedications] = useState([]);
+
   const handlePrev = () => {
     setCurrentIndex((prevIndex) =>
       prevIndex === 0 ? prevIndex : prevIndex - 1
@@ -49,15 +78,11 @@ const SanctifiedComp = ({ set_Id, setModal, data }) => {
 
   const handleNext = () => {
     setCurrentIndex((prevIndex) =>
-      prevIndex === data.length - 1 ? prevIndex : prevIndex + 1
+      prevIndex === dedications.length - 1 ? prevIndex : prevIndex + 1
     );
   };
 
-  useEffect(() => {
-    setDedications(data);
-  }, [data]);
-
-  const ImageSliderBlock = ({ dedication, index, key }) => {
+  const ImageSliderBlock = ({ item, index, key }) => {
     const formatDate = (timestamp) => {
       return new Date(timestamp).toLocaleString("sl-SI", {
         day: "2-digit",
@@ -65,10 +90,22 @@ const SanctifiedComp = ({ set_Id, setModal, data }) => {
         year: "numeric",
       });
     };
+    const [showFullDedicationText, setShowFullDedicationText] = useState(false);
 
+    const toggleDedicationText = () => {
+      setShowFullDedicationText((prev) => !prev);
+    };
+    const characterLimit = 1000;
+    const message = item?.message || "";
+    const shouldTruncate = message.length > characterLimit;
+
+    const displayedMessage =
+      showFullDedicationText || !shouldTruncate
+        ? message
+        : message.slice(0, characterLimit);
     return (
       <div
-        className={`absolute items-center mobile:px-[26px]    h-full w-full flex object-cover transition-opacity duration-500 ease-in-out 
+        className={`items-center mobile:px-[26px]    h-auto w-full flex object-cover transition-opacity duration-500 ease-in-out 
           ${
             index === currentIndex
               ? " justify-center "
@@ -88,7 +125,7 @@ const SanctifiedComp = ({ set_Id, setModal, data }) => {
               `}
       >
         <div
-          className={`flex flex-row justify-between h-full w-full rounded-lg 
+          className={`flex flex-row justify-between h-auto w-full rounded-lg 
         px-[19px] pt-[20px]
         tablet:px-[24px] tablet:pt-[22px]
         desktop:pl-[22px] desktop:pr-[27px] desktop:pt-[27px] bg-[#FFF1DB] mobile:shadow-custom-light-dark mobile:rounded-lg 
@@ -97,7 +134,7 @@ const SanctifiedComp = ({ set_Id, setModal, data }) => {
           <div className="hidden desktop:flex ">
             <Image
               key={index}
-              src={"/sveca_gori.avif"}
+              src="/sveca_gori.avif"
               alt="Description of the image"
               width={1000}
               height={1000}
@@ -108,53 +145,63 @@ const SanctifiedComp = ({ set_Id, setModal, data }) => {
             <div className="flex w-full items-center justify-between ">
               <div className="flex desktop:hidden ">
                 <Image
-                  src={"/sveca_gori.avif"}
-                  // src={images[currentIndex]?.image}
+                  // src={"/burning_candle.png"}
+                  src={item?.image}
                   alt="Description of the image"
                   width={1000}
                   height={1000}
                   className="w-[88px] h-[88px] bg-center  rounded-lg"
                 />
                 <div className="hidden tablet:flex mt-[50px] ml-[27px] h-[38px] items-center">
-                  <h1 className="text-[#1E2125] text-[32px] font-variation-customOpt32 font-medium ">
-                    {dedication?.title}
+                  <h1 className="text-[#1E2125] text-[24px] font-variation-customOpt32 font-medium ">
+                    {item?.title}
                   </h1>
                 </div>
               </div>
               <div className="hidden desktop:flex h-[38px] items-center">
-                <h1 className="text-[#1E2125] text-[32px] font-variation-customOpt32 font-medium ">
-                  {dedication?.title}
+                <h1 className="text-[#1E2125] text-[24px] font-variation-customOpt32 font-medium ">
+                  {item?.title}
                 </h1>
               </div>
 
               <div className="flex flex-col  h-full items-end">
                 <div className="flex h-[19px] items-center">
                   <p className="text-[#1E2125] text-[16px] font-variation-customOpt16">
-                    {dedication?.name}
+                    {item?.name}
                   </p>
                 </div>
                 <div className="flex h-[4] items-center mt-[11px]">
                   <p className=" text-[#414141] text-[12px] font-variation-customOpt12 ">
-                    {formatDate(dedication?.createdTimestamp)}
+                    {formatDate(item?.createdTimestamp)}
                   </p>
                 </div>
               </div>
             </div>
             <div className="flex tablet:hidden desktop:hidden mt-4 h-[32px] items-center">
               <h1 className="text-[#1E2125] text-[24px] font-variation-customOpt24 font-medium ">
-                {dedication?.title}
+                {item?.name}
               </h1>
             </div>
             <div className="flex w-full  mt-4 tablet:mt-[30px] desktop:mt-[25px] flex-col ">
-              <p className="  text-[#414141] text-[16px] font-variation-customOpt16 font-normal ">
-                {dedication?.message}
+              <p className="  text-[#414141] text-[14px] font-variation-customOpt16 font-normal ">
+                {displayedMessage.split("\n").map((line, index) => (
+                  <React.Fragment key={index}>
+                    {line}
+                    <br />
+                  </React.Fragment>
+                ))}
               </p>
             </div>
             <div className="flex-grow"></div>
-            <div className="w-full h-[14px] flex justify-end items-center my-4  tablet:mt-[25px] desktop:mt-[21px]  ">
-              <p className="flex text-[12px] text-[#414141] font-variation-customOpt12">
-                Odpri naprej
-              </p>
+            <div className="w-full h-[14px] flex justify-end items-center mt-3 mb-[25px]  tablet:mt-[25px] desktop:mt-[21px]  ">
+              {shouldTruncate && !showFullDedicationText && (
+                <p
+                  onClick={toggleDedicationText}
+                  className="flex text-[12px] text-[#414141] font-variation-customOpt12 cursor-pointer"
+                >
+                  Odpri več
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -163,12 +210,13 @@ const SanctifiedComp = ({ set_Id, setModal, data }) => {
   };
 
   return (
-    <div className="relative pt-[118.5px]  tablet:pt-[132px] desktop:pt-[110px] mx-auto pb-[102px]  mb-[20px] max-w-[1920px] w-full overflow-hidden justify-center items-center flex flex-col">
+    <div className="relative pt-[118.5px]  tablet:pt-[132px] h-auto  desktop:pt-[110px] mx-auto pb-[20px]  max-w-[1920px] w-full  justify-center items-center flex flex-col">
       <div
         className="flex flex-col justify-center items-center
               w-full mobile:px-[30px]
               tablet:w-[600px]
               desktop:w-[720px] 
+              
              "
       >
         <div className="flex mobile:h-[33px] h-[47px] items-center">
@@ -186,7 +234,7 @@ const SanctifiedComp = ({ set_Id, setModal, data }) => {
             set_Id("13");
             setModal(true);
           }}
-          className="flex mt-6 w-full h-[16px] items-center justify-end pr-[11.5px]  cursor-pointer  "
+          className="flex cursor-pointer mt-6 w-full h-[16px] items-center justify-end pr-[11.5px] "
         >
           <Image
             src={"/round_add.png"}
@@ -207,16 +255,13 @@ const SanctifiedComp = ({ set_Id, setModal, data }) => {
           </p>
         </div>
       </div>
-
-      <div className="flex flex-col desktop:mb-5 desktop:shadow-custom-light-dark desktop:rounded-lg   mt-[34px] desktop:mt-6 mobile:w-full mobile:h-[720px] tablet:h-[460px] tablet:justify-center desktop:justify-center ">
-        <div className="relative  w-[720px] tablet:shadow-custom-light-dark tablet:rounded-lg  tablet:w-[580px] mobile:w-full h-[350px] tablet:h-[383px] mobile:h-[633px]">
-          {dedications?.map((dedication, index) => (
-            <ImageSliderBlock
-              dedication={dedication}
-              index={index}
-              key={index}
-            />
-          ))}
+      <div className="flex   flex-col desktop:mb-5 desktop:shadow-custom-light-dark desktop:rounded-lg   mt-[34px] desktop:mt-6 mobile:w-full mobile:h-[720px] tablet:h-[460px] tablet:justify-center desktop:justify-center ">
+        <div className="relative  w-[720px] tablet:shadow-custom-light-dark tablet:rounded-lg  tablet:w-[580px] mobile:w-full h-auto tablet:h-[383px] mobile:h-[633px]">
+          <ImageSliderBlock
+            item={dedications[currentIndex]}
+            index={currentIndex}
+            key={currentIndex}
+          />
         </div>
         <div
           className="mobile:hidden flex absolute mobile:mt-[650px]  w-[150px] tablet:w-[670px]  z-45 self-center items-center 
