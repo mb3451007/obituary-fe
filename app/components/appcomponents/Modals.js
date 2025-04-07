@@ -1172,14 +1172,14 @@ const Modals = ({
           </div>
           <div className=" mt-8 ">
             <DescriptionFieldComp
-              placeholder={"Omejitev je 60 znakov."}
+              placeholder={"Omejitev je 100 znakov."}
               height={"80px"}
               value={verse}
               onChange={(e) => {
                 console.log(e.target.value);
                 setVerse(e.target.value);
               }}
-              maxLength={60}
+              maxLength={100}
             />
           </div>
           <div className="mobile:w-[100%] w-[254px] mt-8">
@@ -1484,7 +1484,7 @@ const Modals = ({
                 console.log(e.target.value);
                 setName(e.target.value);
               }}
-              maxLength={100}
+              maxLength={25}
             />
           </div>
 
@@ -1604,7 +1604,10 @@ const Modals = ({
             {formatTime(timeLeft)}
           </div>
           <div className="flex mobile:w-[100%] w-[254px] mt-8 justify-center mx-auto">
-            <ButtonBlueBorder placeholder={"Zapri"} />
+            <ButtonBlueBorder
+              placeholder={"Zapri"}
+              onClick={() => closeModal()}
+            />
           </div>
 
           <div className="mt-[45px] flex flex-row justify-center mobile:hidden">
@@ -2059,15 +2062,17 @@ const Modals = ({
             </div>
           </div>
 
-          <div className="flex mx-[20px] mobile:mx-0 mt-8 items-end flex-col">
-            <div className=" flex text-[24px] mobile:text-[20px] text-[#414B5A] font-greatVibes font-normal">
-              {data?.verse}
-            </div>
-            {data?.verse && (
-              <div className=" flex text-[20px] text-[#414B5A] font-greatVibes font-normal">
+          <div className="flex mx-[20px] mobile:mx-0 mt-8 flex-col">
+            <p className="w-full text-center text-[24px] mobile:text-[20px] text-[#414B5A] font-greatVibes font-normal">
+              {data?.verse
+                ? data?.verse
+                : "The song is ended but the melody lingers on."}
+            </p>
+            {/* {data?.verse && (
+              <p className="w-full text-end text-[20px] text-[#414B5A] font-greatVibes font-normal">
                 Irving Berlin
-              </div>
-            )}
+              </p>
+            )} */}
           </div>
 
           <div className="rounded-[6px] mt-8 bg-[#F2F8FF66] shadow-custom-dark-to-white w-full py-[17px]">

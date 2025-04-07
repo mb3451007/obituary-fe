@@ -350,73 +350,6 @@ function HeaderAdmin({
               />
             </div>
           </div>
-        ) : headerCheck === 5 ? (
-          <div
-            style={{
-              fontVariationSettings: "'opsz' 20",
-              fontVariationSettings: "'wdth' 50",
-            }}
-            className={`text-[20px] my-auto transform translate-y-[20%] flex flex-row ${
-              isSelected === "All Stats"
-                ? "text-[#0A85C2] font-semibold"
-                : "text-[#6D778E] font-normal"
-            } gap-x-[12px] leading-[23px]`}
-          >
-            <div
-              onClick={() => {
-                setIsSelected("All Stats");
-                setWhichScreen(1);
-              }}
-              className="flex flex-col items-center mb-[9px]"
-            >
-              <div className=" mb-[9px]">All Stats</div>
-              <div
-                className={`w-[100px] ${
-                  isSelected === "All Stats" ? "bg-[#0A85C2]" : "bg-[#D4D4D4]"
-                }  h-[2px] rounded`}
-              />
-            </div>
-
-            <div
-              onClick={() => {
-                setIsSelected("Accounts Stats");
-                setWhichScreen(2);
-              }}
-              className={`flex flex-col ${
-                isSelected === "Accounts Stats"
-                  ? "text-[#0A85C2] font-semibold"
-                  : "text-[#6D778E] font-normal"
-              } items-center`}
-            >
-              <div className=" mb-[9px]">Accounts Stats</div>
-              <div
-                className={`w-[150px] ${
-                  isSelected === "Accounts Stats"
-                    ? "bg-[#0A85C2]"
-                    : "bg-[#D4D4D4]"
-                } h-[2px] rounded`}
-              />
-            </div>
-
-            <div
-              onClick={() => {
-                setIsSelected("Daily");
-                setWhichScreen(3);
-              }}
-              className={`flex flex-col ${
-                isSelected === "Daily"
-                  ? "text-[#0A85C2] font-semibold"
-                  : "text-[#6D778E] font-normal"
-              } items-center`}
-            >
-              <div className=" mb-[9px]">Daily</div>
-              <div
-                className={`w-[80px] ${
-                  isSelected === "Daily" ? "bg-[#0A85C2]" : "bg-[#D4D4D4]"
-                } h-[2px] rounded`}
-              />
-            </div>
-          </div>
         ) : (
           <div
             style={{
@@ -467,7 +400,7 @@ function HeaderAdmin({
 
             <div
               onClick={() => {
-                setIsSelected("Daily");
+                setIsSelected("Florists_Subscriptions");
                 setWhichScreen(3);
               }}
               className={`flex flex-col ${

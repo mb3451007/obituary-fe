@@ -73,7 +73,7 @@ const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
 
       toast.success("Candle Burnt Successfully");
       set_Id("3");
-      setModal("true");
+      setModal(true);
       const updatedCandles = [
         {
           ...data.candles[0],
@@ -99,7 +99,7 @@ const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
         );
       }
       set_Id("3");
-      setModal("true");
+      setModal(true);
     }
   };
 
@@ -122,7 +122,7 @@ const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
   return (
     <div
       id="memoryPageTop"
-      className="flex flex-col w-full  items-center  justify-center "
+      className="flex flex-col w-full  items-center  justify-center"
     >
       <div
         className="bg-[#ecf0f3]   w-full flex justify-center 
@@ -133,12 +133,12 @@ const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
                w-[100%] px-[14px] tablet:px-0 desktop:px-0
                tablet:w-[525px]
                desktop:w-[1089px]  
-            desktop:h-[auto]    
+               desktop:h-[auto]    
        
                "
         >
           <div className="flex desktop:h-auto  flex-col desktop:flex-row w-[100%] min-h-screen  relative ">
-            <div className="flex  w-[100%] justify-center desktop:w-[50%]  desktop:h-screen static desktop:sticky top-20 ">
+            <div className="flex  w-[100%] justify-center desktop:w-[50%]  desktop:h-screen static desktop:sticky top-20">
               <div className="flex  flex-col  desktop:h-[60%] w-[100%]  ">
                 <div className="flex  flex-col w-[100%]  items-center ">
                   <div className="hidden desktop:flex h-[30px]" />
@@ -205,9 +205,9 @@ const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
                           : "The song is ended but the melody lingers on."}
                       </p>
 
-                      <p className="text-[16px] text-[#414141] font-normal font-greatVibes text-center desktop:text-end">
+                      {/* <p className="text-[16px] text-[#414141] font-normal font-greatVibes text-center desktop:text-end">
                         Irving Berlin
-                      </p>
+                      </p> */}
                     </div>
                   </div>
                 </div>
@@ -341,7 +341,7 @@ const MemorialPageTopComp = ({ set_Id, setModal, data, updateObituary }) => {
                   </div>
                   <div className="bg-[#D4D4D4] h-[1px] w-[100%] my-4 " />
                   {/* <div className="flex h-[79px] desktop:h-[71px] bg-yellow-400"> */}
-                  <div className="flex desktop:pb-[20px] pb-[15px]    ">
+                  <div className="flex desktop:pb-[20px] p-[14px]    ">
                     <p className="text-[#414141] text-[16px] font-variation-customOpt16 font-normal leading-6 ">
                       {displayedObituary.split("\n").map((line, index) => (
                         <React.Fragment key={index}>

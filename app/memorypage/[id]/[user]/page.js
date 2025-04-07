@@ -62,6 +62,10 @@ const MemoryPage = ({ params }) => {
   //     toast.error(err.message || "Failed to fetch obituary.");
   //   }
   // };
+
+  useEffect(() => {
+    console.log("set is modal:", isShowModal);
+  }, [isShowModal]);
   //new code for memory with keepers
   const fetchMemory = async () => {
     try {
@@ -112,10 +116,6 @@ const MemoryPage = ({ params }) => {
       ...updatedData,
     }));
   };
-
-  useEffect(() => {
-    console.log(obituary, "-------------------");
-  }, [obituary]);
 
   return (
     <Layout from={"3"} forFooter={"memorypage"}>

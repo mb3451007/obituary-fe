@@ -23,7 +23,7 @@ const PersonCard = ({ name, date, relation, Condolence }) => {
   return (
     <div className="w-[310px] tablet:w-[288px] mobile:w-[288px]  p-2 shadow-custom-light-dark flex flex-col h-auto  rounded-lg bg-gradient-to-r from-[#E3E8EC] to-[#FFFFFF] mx-2">
       <div className="flex flex-row justify-between items-center mt-[19px] tablet:mt-[12px] mobile:mt-[12px] ml-[16.13px] tablet:ml-[22px] mobile:ml-[22px] mr-[17px]">
-        <div className="w-[59px] h-[24px] text-nowrap leading-[24px] text-[14px] font-variation-customOpt16 text-[#1E2125]">
+        <div className=" h-[24px] text-nowrap leading-[24px] text-[14px] font-variation-customOpt16 text-[#1E2125]">
           {name}
         </div>
         <div className="font-variation-customOpt12 tablet:ml-[-9px] mobile:ml-[-9px] text-[#414141] text-[12px]">

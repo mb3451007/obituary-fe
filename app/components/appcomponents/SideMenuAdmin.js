@@ -31,7 +31,7 @@ const SideMenuAdmin = ({
       path: "/funeralcompanydata",
     },
     { text: "Florists", imgSrc: "/ico_funerals.png", path: "/floristfirst" },
-    { text: "Users", imgSrc: "/ico_funeral_comp.png", path: "/usersAdmin" },
+    { text: "Users", imgSrc: "/ico_funeral_comp.png", path: "" },
     { text: "Keepers", imgSrc: "/ico_funeral_comp.png", path: "/keepers" },
     {
       text: "Financials",
