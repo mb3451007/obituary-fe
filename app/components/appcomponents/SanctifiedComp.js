@@ -202,6 +202,15 @@ const SanctifiedComp = ({ set_Id, setModal, dedications }) => {
                   Odpri več
                 </p>
               )}
+
+              {shouldTruncate && showFullDedicationText && (
+                <p
+                  onClick={toggleDedicationText}
+                  className="flex text-[12px] text-[#414141] font-variation-customOpt12 cursor-pointer"
+                >
+                  Zapri
+                </p>
+              )}
             </div>
           </div>
         </div>

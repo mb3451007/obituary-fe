@@ -1168,18 +1168,18 @@ const Modals = ({
             Dodaj lepo misel, verz
           </div>
           <div className="mt-8 text-[15px] font-normal text-[#3C3E41] ">
-            Prikazana bo na levi strani pod sliko.
+            Prikazano bo pod sliko
           </div>
           <div className=" mt-8 ">
             <DescriptionFieldComp
-              placeholder={"Omejitev je 100 znakov."}
+              placeholder={"Omejitev je 120 znakov."}
               height={"80px"}
               value={verse}
               onChange={(e) => {
                 console.log(e.target.value);
                 setVerse(e.target.value);
               }}
-              maxLength={100}
+              maxLength={120}
             />
           </div>
           <div className="mobile:w-[100%] w-[254px] mt-8">
@@ -2007,18 +2007,19 @@ const Modals = ({
               alt=" photo"
               width={85}
               height={85}
+              className="rounded-md"
             />
           </div>
 
           <div
-            className="text-[#1E2125] mobile:text-nowrap text-[36px] mt-[32px] leading-[42px] font-variation-customOpt36 mobile:font-variation-customOpt24 text-center font-light mobile:text-[24px] 
+            className="text-[#1E2125] mobile:text-nowrap text-[36px] mt-[5px] leading-[42px]  mobile:font-variation-customOpt24 text-center font-light mobile:text-[24px] 
                 "
           >
             {data?.name} {data?.sirName}
           </div>
 
           <div
-            className="text-[#414B5A] text-[24px] mt-2 mobile:mt-1 leading-[38px] font-variation-customOpt36 mobile:font-variation-customOpt16 text-center font-semibold mobile:text-[24px] 
+            className="text-[#414B5A] text-[24px]  mobile:mt-1 leading-[38px] font-variation-customOpt36 mobile:font-variation-customOpt16 text-center font-semibold mobile:text-[24px] 
                 "
           >
             Žalna knjiga
@@ -2030,7 +2031,7 @@ const Modals = ({
             ))}
           </div>
 
-          <div className=" w-[328px] mobile:w-full rounded-[10px] self-center mt-8 shadow-custom-dark-bottom">
+          <div className=" w-[328px] mobile:w-full rounded-[10px] self-center mt-14 shadow-custom-dark-bottom">
             <div
               className="h-[60px] w-full bg-gradient-to-b from-[#D8A800] to-[#F48F5370] border-[1.5px] border-[#D8A800] 
         flex justify-center items-center rounded-[10px]"
