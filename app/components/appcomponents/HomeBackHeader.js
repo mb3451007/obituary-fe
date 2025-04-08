@@ -11,28 +11,88 @@ const HomeBackHeader = () => {
       />
       <img
         src="/klop_naslovna.avif"
-        alt="Description of the image"
+        alt="Slika"
         className="mobile:flex hidden h-[257px] w-[1280px] object-cover"
       />
       <div className="h-[170px] smmobile:w-[160px] smmobile:h-[332px] w-[288.58px] left-[25.41px] smmobile:left-[14px] top-2 rounded-lg border border-[#D4D4D4] absolute mobile:flex hidden overflow-hidden shadow-custom-light-dark-banner bg-gradient-to-br from-[#FFFFFF] to-[#FFFFFF10] backdrop-blur-sm">
-      <div className="grid grid-cols-2 smmobile:grid-cols-1 gap-[22px] p-4 ">
-          <HeaderHeadingTextMobile head={"OSMRTNICE"} index={"01."} id={1} endPoint={"/obituarylist"}/>
-          <HeaderHeadingTextMobile head={"POGREBI"} index={"02."} id={2}  endPoint={""}/>
-          <HeaderHeadingTextMobile head={"SPOMINSKA"} index={"03."} id={3} endPoint={"/obituarylist"}/>
-          <HeaderHeadingTextMobile head={"CVETLIČARNE"} index={"04."} id={4} endPoint={"/florists"}/>
+        <div className="grid grid-cols-2 smmobile:grid-cols-1 gap-[22px] p-4 ">
+          <HeaderHeadingTextMobile
+            head={"OSMRTNICE"}
+            index={"01."}
+            id={1}
+            endPoint={"/obituarylist"}
+          />
+          <HeaderHeadingTextMobile
+            head={"POGREBI"}
+            index={"02."}
+            id={2}
+            endPoint={""}
+          />
+          <HeaderHeadingTextMobile
+            head={"SPOMINSKA"}
+            index={"03."}
+            id={3}
+            endPoint={"/obituarylist"}
+          />
+          <HeaderHeadingTextMobile
+            head={"CVETLIČARNE"}
+            index={"04."}
+            id={4}
+            endPoint={"/florists"}
+          />
         </div>
       </div>
       <div className="justify-center absolute bottom-[44px] -mr-9 desktop:flex hidden">
-      <HeaderHeadingText head={"OSMRTNICE"} index={"01."} id={1} endPoint={"/obituarylist"}  />
-        <HeaderHeadingText head={"POGREBI"} index={"02."} id={2} endPoint={""}/>
-        <HeaderHeadingText head={"SPOMINSKA"} index={"03."} id={3} endPoint={"/obituarylist"}/>
-        <HeaderHeadingText head={"CVETLIČARNE"} index={"04."} id={4} endPoint={"/florists"}/>
+        <HeaderHeadingText
+          head={"OSMRTNICE"}
+          index={"01."}
+          id={1}
+          endPoint={"/obituarylist"}
+        />
+        <HeaderHeadingText
+          head={"POGREBI"}
+          index={"02."}
+          id={2}
+          endPoint={""}
+        />
+        <HeaderHeadingText
+          head={"SPOMINSKA"}
+          index={"03."}
+          id={3}
+          endPoint={"/obituarylist"}
+        />
+        <HeaderHeadingText
+          head={"CVETLIČARNE"}
+          index={"04."}
+          id={4}
+          endPoint={"/florists"}
+        />
       </div>
       <div className=" justify-between absolute bottom-[70px] w-full max-w-[898.97px] tablet:flex hidden pl-[65px] pr-[50px]">
-        <HeaderHeadingTextTablet head={"OSMRTNICE"} index={"01."} id={1} endPoint={"/obituarylist"}/>
-        <HeaderHeadingTextTablet head={"POGREBI"} index={"02."} id={2} endPoint={""}/>
-        <HeaderHeadingTextTablet head={"SPOMINSKA"} index={"03."} id={3} endPoint={"/obituarylist"}/>
-        <HeaderHeadingTextTablet head={"CVETLIČARNE"} index={"04."} id={4} endPoint={"/florists"}/>
+        <HeaderHeadingTextTablet
+          head={"OSMRTNICE"}
+          index={"01."}
+          id={1}
+          endPoint={"/obituarylist"}
+        />
+        <HeaderHeadingTextTablet
+          head={"POGREBI"}
+          index={"02."}
+          id={2}
+          endPoint={""}
+        />
+        <HeaderHeadingTextTablet
+          head={"SPOMINSKA"}
+          index={"03."}
+          id={3}
+          endPoint={"/obituarylist"}
+        />
+        <HeaderHeadingTextTablet
+          head={"CVETLIČARNE"}
+          index={"04."}
+          id={4}
+          endPoint={"/florists"}
+        />
       </div>
     </div>
   );
@@ -56,7 +116,8 @@ const HeaderHeadingText = ({ head, index, id, endPoint }) => {
               fontSize: "64px",
               lineHeight: "75px",
               fontVariationSettings: "'opsz' 64",
-            }}>
+            }}
+          >
             {index}
           </p>
         </div>
@@ -70,7 +131,8 @@ const HeaderHeadingText = ({ head, index, id, endPoint }) => {
               fontSize: "28px",
               lineHeight: "32.81px",
               fontVariationSettings: "'opsz' 28",
-            }}>
+            }}
+          >
             {head}
           </p>
         </div>
@@ -94,7 +156,8 @@ const HeaderHeadingTextTablet = ({ head, index, id, endPoint }) => {
               fontSize: "40px",
               lineHeight: "47px",
               fontVariationSettings: "'opsz' 40",
-            }}>
+            }}
+          >
             {index}
           </p>
         </div>
@@ -108,7 +171,8 @@ const HeaderHeadingTextTablet = ({ head, index, id, endPoint }) => {
               fontSize: "20px",
               lineHeight: "23px",
               fontVariationSettings: "'opsz' 20",
-            }}>
+            }}
+          >
             {head}
           </p>
         </div>
@@ -131,7 +195,8 @@ const HeaderHeadingTextMobile = ({ head, index, id, endPoint }) => {
               fontSize: "32px",
               lineHeight: "38px",
               fontVariationSettings: "'opsz' 32",
-            }}>
+            }}
+          >
             {index}
           </p>
         </div>
@@ -144,7 +209,8 @@ const HeaderHeadingTextMobile = ({ head, index, id, endPoint }) => {
               fontSize: "16px",
               lineHeight: "19px",
               fontVariationSettings: "'opsz' 16",
-            }}>
+            }}
+          >
             {head}
           </p>
         </div>

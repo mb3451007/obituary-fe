@@ -212,7 +212,6 @@ const FuneralsCompanyBanner = () => {
         </div>
       </div>
 
-
       <div className="  h-[565px] mobile:h-[937px] tablet:h-[606pxpx] max-w-[1280px] w-full flex justify-center items-end">
         <div className="max-w-[1009px] w-full tablet:w-[597.23px] mobile:w-[296px] flex mobile:flex-col justify-between desktop:px-6 mb-16 mobile:mb-12">
           <div className=" relative desktop:w-[452px] desktop:h-[295px] tablet:w-[276px] tablet:h-[235.81px] flex flex-col justify-center">
@@ -230,12 +229,12 @@ const FuneralsCompanyBanner = () => {
           <div className=" relative desktop:w-[416px] desktop:h-[295px] w-[302.23px] h-[214.81px] flex justify-end">
             <img
               src="/pokopalisce_gabrsko1.avif"
-              alt="Description of the image"
+              alt="Slika"
               className=" desktop:h-[256px]  desktop:w-[367.21px] w-[266.98px] h-[186.63px] object-cover rounded-lg border-[3px] border-white"
             />
             <img
               src="/pokopalisce_gabrsko2.avif"
-              alt="Description of the image"
+              alt="Slika"
               className="desktop:h-[156px] desktop:w-[222.72px] w-[162.59px] h-[114.38px] object-cover absolute bottom-0 left-0 rounded-lg border-[3px] border-white"
             />
           </div>

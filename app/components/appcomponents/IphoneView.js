@@ -10,14 +10,14 @@ const IphoneView = () => {
         className="
       desktop:w-[1200px] desktop:h-[739px] 
       tablet:w-[680px] tablet:h-[1017px] 
-      mobile:w-[360px] mobile:h-[1060px]
-      flex justify-center"
+      mobile:w-[360px] mobile:h-[1100px]
+      flex justify-center "
       >
         <div
           className="
         desktop:w-[936px] desktop:h-[500px] desktop:mt-[98px]
         tablet:w-[495.45px] tablet:mt-[53.19px] tablet:ml-[.19px] tablet:mr-[.36px]
-        mobile:w-[303px] mobile:mt-[40px]
+        mobile:w-[303px] mobile:my-[80px]
         flex flex-col desktop:flex-row desktop:justify-between
         "
         >
@@ -61,7 +61,7 @@ const IphoneView = () => {
           <div className="flex flex-col justify-center items-center tablet:mt-16 mobile:mt-[21px]">
             <Image
               src={iphoneImage}
-              alt="Description of the image"
+              alt="Slika"
               width={1000}
               height={1000}
               className="w-[250px] h-[500px]"

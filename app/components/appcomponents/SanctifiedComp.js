@@ -135,30 +135,36 @@ const SanctifiedComp = ({ set_Id, setModal, dedications }) => {
             <Image
               key={index}
               src="/sveca_gori.avif"
-              alt="Description of the image"
+              alt="Slika"
               width={1000}
               height={1000}
               className="w-[110px] h-[120px] bg-center  rounded-lg"
             />
           </div>
+
+          <div className="hidden tablet:flex mr-5">
+            <Image
+              // src={"/burning_candle.png"}
+              src={"/sveca_gori.avif"}
+              alt="Slika"
+              width={1000}
+              height={1000}
+              className="w-[88px] h-[88px] bg-center  rounded-lg"
+            />
+          </div>
           <div className="flex flex-col w-full desktop:w-[522px]  ">
             <div className="flex w-full items-center justify-between ">
-              <div className="flex desktop:hidden ">
+              <div className="flex desktop:hidden tablet:hidden">
                 <Image
                   // src={"/burning_candle.png"}
-                  src={item?.image}
-                  alt="Description of the image"
+                  src={"/sveca_gori.avif"}
+                  alt="Slika"
                   width={1000}
                   height={1000}
                   className="w-[88px] h-[88px] bg-center  rounded-lg"
                 />
-                <div className="hidden tablet:flex mt-[50px] ml-[27px] h-[38px] items-center">
-                  <h1 className="text-[#1E2125] text-[24px] font-variation-customOpt32 font-medium ">
-                    {item?.title}
-                  </h1>
-                </div>
               </div>
-              <div className="hidden desktop:flex h-[38px] items-center">
+              <div className="hidden desktop:flex tablet:flex h-[38px] items-center">
                 <h1 className="text-[#1E2125] text-[24px] font-variation-customOpt32 font-medium ">
                   {item?.title}
                 </h1>
@@ -179,10 +185,10 @@ const SanctifiedComp = ({ set_Id, setModal, dedications }) => {
             </div>
             <div className="flex tablet:hidden desktop:hidden mt-4 h-[32px] items-center">
               <h1 className="text-[#1E2125] text-[24px] font-variation-customOpt24 font-medium ">
-                {item?.name}
+                {item?.title}
               </h1>
             </div>
-            <div className="flex w-full  mt-4 tablet:mt-[30px] desktop:mt-[25px] flex-col ">
+            <div className="flex w-full  mt-4 tablet:mt-[25px] desktop:mt-[25px] flex-col ">
               <p className="  text-[#414141] text-[14px] font-variation-customOpt16 font-normal ">
                 {displayedMessage.split("\n").map((line, index) => (
                   <React.Fragment key={index}>
@@ -219,10 +225,10 @@ const SanctifiedComp = ({ set_Id, setModal, dedications }) => {
   };
 
   return (
-    <div className="relative pt-[118.5px]  tablet:pt-[132px] h-auto  desktop:pt-[110px] mx-auto pb-[20px]  max-w-[1920px] w-full  justify-center items-center flex flex-col">
+    <div className="relative pt-[118.5px] mobile:pt-[50px]  tablet:pt-[132px] h-auto  desktop:pt-[110px] mx-auto pb-[20px]  max-w-[1920px] w-full  justify-center items-center flex flex-col">
       <div
         className="flex flex-col justify-center items-center
-              w-full mobile:px-[30px]
+              w-full mobile:px-[12px]
               tablet:w-[600px]
               desktop:w-[720px] 
               
@@ -233,7 +239,7 @@ const SanctifiedComp = ({ set_Id, setModal, dedications }) => {
             Posvetilo
           </h>
         </div>
-        <div className="flex mt-4 mobile:h-[48px] h-6 items-center ">
+        <div className="flex mt-4 mobile:h-[48px] h-6 items-center mobile:px-[20px]">
           <p className="text-[16px] text-[#414141] font-variation-customOpt16 text-center font-normal leading-[24px] ">
             Delite zgodbe, čarobne trenutke, morda biografijo, zadnji pozdrav
           </p>
@@ -243,29 +249,29 @@ const SanctifiedComp = ({ set_Id, setModal, dedications }) => {
             set_Id("13");
             setModal(true);
           }}
-          className="flex cursor-pointer mt-6 w-full h-[16px] items-center justify-end pr-[11.5px] "
+          className="flex cursor-pointer mt-6   h-[16px] items-center justify-end w-full "
         >
           <Image
             src={"/round_add.png"}
-            alt="Description of the image"
+            alt="Slika"
             width={100}
             height={100}
-            className="hidden desktop:flex w-[12px] h-[12px] mr-[10px]  "
+            className="hidden desktop:flex w-[12px]  mb-[2px] h-[12px] mr-[10px]  "
           />
           <Image
             src={"/pan.png"}
-            alt="Description of the image"
+            alt="Slika"
             width={100}
             height={100}
-            className="flex desktop:hidden w-[12px] h-[12px] mr-[10px]  "
+            className="flex desktop:hidden w-[12px] mb-[2px] h-[12px] mr-[10px]  "
           />
           <p className="text-[#414141] text-[14px] font-variation-customOpt12 font-normal">
             Dodaj Posvetilo
           </p>
         </div>
       </div>
-      <div className="flex   flex-col desktop:mb-5 desktop:shadow-custom-light-dark desktop:rounded-lg   mt-[34px] desktop:mt-6 mobile:w-full mobile:h-[720px] tablet:h-[460px] tablet:justify-center desktop:justify-center ">
-        <div className="relative  w-[720px] tablet:shadow-custom-light-dark tablet:rounded-lg  tablet:w-[580px] mobile:w-full h-auto tablet:h-[383px] mobile:h-[633px]">
+      <div className="flex   flex-col desktop:mb-5 desktop:shadow-custom-light-dark desktop:rounded-lg   mt-[34px] desktop:mt-6 mobile:w-full  tablet:justify-center desktop:justify-center ">
+        <div className="relative  w-[720px] tablet:shadow-custom-light-dark tablet:rounded-lg  tablet:w-[580px] mobile:w-full h-auto   ">
           <ImageSliderBlock
             item={dedications[currentIndex]}
             index={currentIndex}
@@ -286,7 +292,7 @@ const SanctifiedComp = ({ set_Id, setModal, dedications }) => {
           >
             <Image
               src={"/prev_img_icon.png"}
-              alt="Description of the image"
+              alt="Slika"
               width={1000}
               height={1000}
               className="flex w-[24px] h-[40px] "
@@ -301,7 +307,7 @@ const SanctifiedComp = ({ set_Id, setModal, dedications }) => {
           >
             <Image
               src={"/next_img_icon.png"}
-              alt="Description of the image"
+              alt="Slika"
               width={1000}
               height={1000}
               className="flex w-[24px] h-[40px] "
@@ -316,7 +322,7 @@ const SanctifiedComp = ({ set_Id, setModal, dedications }) => {
             {/* <img src="/img_back_mob.png" alt="back" className="h-[13.79px] w-[8.43px]" /> */}
             <Image
               src={"/img_back_mob.png"}
-              alt="Description of the image"
+              alt="Slika"
               width={1000}
               height={1000}
               className="h-[13.79px] w-[8.43px] "
@@ -329,7 +335,7 @@ const SanctifiedComp = ({ set_Id, setModal, dedications }) => {
           >
             <Image
               src={"/img_forward_mob.png"}
-              alt="Description of the image"
+              alt="Slika"
               width={1000}
               height={1000}
               className="h-[13.79px] w-[8.43px]"

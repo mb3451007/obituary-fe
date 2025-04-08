@@ -34,8 +34,20 @@ const IpadSlider = ({ data }) => {
 
   const swiper = useSwiper();
   return (
-    <section className={`w-full ${currentIndex === 0 ? "mobile:h-[920px] tablet:h-[1200px] bg-[#f8fff1]" : "mobile:h-[920px] tablet:h-[1200px] bg-[#F1FAF8]"} flex justify-center items-center  `}>
-      <div className={`relative flex w-full mobile:w-[679px] tablet:my-auto ${currentIndex === 0 ? "mobile:h-[920px] tablet:h-[1200px]" : "mobile:h-[920px] tablet:h-[1200px]"} tablet:w-full desktop:max-w-[1920px] desktop:w-full mobile:w-full`}>
+    <section
+      className={`w-full ${
+        currentIndex === 0
+          ? "mobile:h-[920px] tablet:h-[1200px] bg-[#f8fff1]"
+          : "mobile:h-[920px] tablet:h-[1200px] bg-[#F1FAF8]"
+      } flex justify-center items-center  `}
+    >
+      <div
+        className={`relative flex w-full mobile:w-[679px] tablet:my-auto ${
+          currentIndex === 0
+            ? "mobile:h-[920px] tablet:h-[1200px]"
+            : "mobile:h-[920px] tablet:h-[1200px]"
+        } tablet:w-full desktop:max-w-[1920px] desktop:w-full mobile:w-full`}
+      >
         <Swiper
           direction="horizontal"
           autoplay={{ delay: 20000 }}
@@ -71,13 +83,13 @@ const IpadSlider = ({ data }) => {
                     >
                       <Image
                         src={ipadImage}
-                        alt="Description of the image"
+                        alt="Slika"
                         width={1000} // Desired width
                         height={1000} // Desired height
                         className="w-['100%'] h-['100%'] desktop:flex hidden"
                       />
-                    
-                    <div
+
+                      <div
                         className={`relative ${
                           currentIndex === 0
                             ? "h-[767px] w-[504px]"
@@ -88,10 +100,10 @@ const IpadSlider = ({ data }) => {
                           src={ipadImageTablet}
                           alt="spominska_tablica1"
                           width={1000} // Desired width
-                        height={1000} // Desired height
+                          height={1000} // Desired height
                           className="w-['100%'] h-['100%'] tablet:flex hidden"
                         />
-                     </div>
+                      </div>
 
                       <div
                         className={`relative ${
@@ -100,14 +112,14 @@ const IpadSlider = ({ data }) => {
                             : "h-[420px] w-[250px]"
                         }  mx-auto mobile:flex hidden`}
                       >
-                      <Image
-                        src={ipadImageMobile}
-                        alt="Description of the image"
-                        width={1000} // Desired width
-                        height={1000} // Desired height
-                        className="w-['100%'] h-['100%'] mobile:flex hidden"
-                      />
-                       </div>
+                        <Image
+                          src={ipadImageMobile}
+                          alt="Slika"
+                          width={1000} // Desired width
+                          height={1000} // Desired height
+                          className="w-['100%'] h-['100%'] mobile:flex hidden"
+                        />
+                      </div>
                     </div>
                     <Link
                       href={index == 0 ? "/memorypromo" : "/keeperpromo"}
@@ -146,21 +158,20 @@ const IpadSlider = ({ data }) => {
           font-variation-customOpt40 text-center mobile:w-full mobile:items-center"
                       >
                         <div className="mobile:flex flex-row justify-center text-center">
-                        {index == 0 ? "Osmrtnica" : "Spominska stran"}
-                        {index == 1 ? (
-                          <span
-                            className="text-red-600 
+                          {index == 0 ? "Osmrtnica" : "Spominska stran"}
+                          {index == 1 ? (
+                            <span
+                              className="text-red-600 
           mobile:text-[28px] tablet:text-[40px] desktop:text-[40px] 
           mobile:leading-[32.81px] leading-[46.88px] 
           font-variation-customOpt40 ml-2 "
-                          >
-                            {"s skrbnikom"}
-                          </span>
-                        ) : (
-                          ""
-                        )}
+                            >
+                              {"s skrbnikom"}
+                            </span>
+                          ) : (
+                            ""
+                          )}
                         </div>
-                        
                       </div>
                     </div>
                     {index == 0 ? (
@@ -174,9 +185,11 @@ const IpadSlider = ({ data }) => {
                           Nadgradnja osnovne spominske strani - osmrtnice, kjer
                           skrbnik prevzame kontrolo nad objavljeno vsebino;
                           ponavadi je to nekdo, ki je bil preminulemu bližnji.
-                          <span className="mobile:hidden">Upravljanje je enostavno; vsak je lahko skrbnik.</span>
+                          <span className="mobile:hidden">
+                            Upravljanje je enostavno; vsak je lahko skrbnik.
+                          </span>
                           <br />
-                          <br/>
+                          <br />
                           Ker Skrbnik skrbi za vsebino še preden je objavljena,
                           so tu lahko dodane številne dodatne možnosti za
                           izdelavo prave spominske knjige, na katero se bodo
@@ -185,7 +198,9 @@ const IpadSlider = ({ data }) => {
                       </>
                     )}
                     <p
-                    className={`${index === 1 ? "mobile:hidden" : "mobile:block"}`}
+                      className={`${
+                        index === 1 ? "mobile:hidden" : "mobile:block"
+                      }`}
                       style={{
                         fontSize: "20px",
                         lineHeight: "23.44px",
@@ -220,32 +235,31 @@ const IpadSlider = ({ data }) => {
           ))}
         </Swiper>
         <button
-            className="absolute z-40 top-[45%] left-[120px] mobile:left-[60px] transform -translate-y-1/2 text-white p-2 mobile:w-[24px] mobile:h-[24px] w-[45px] h-[45px]"
-            onClick={() => swiperInstance && swiperInstance.slidePrev()}
-          >
-            <Image
-              src={"/prev_img_icon.png"}
-              alt="Description of the image"
-              width={1000}
-              height={1000}
-              className="flex w-[45px] h-[45px] mobile:w-[24px] mobile:h-[24px]"
-            />
-          </button>
-          <button
-            className="absolute z-40 top-[45%] right-[120px] mobile:right-[60px] transform -translate-y-1/2 text-white p-2 mobile:w-[24px] mobile:h-[24px] w-[40px] h-[40px]"
-            onClick={() => {
-               swiperInstance && swiperInstance.slideNext();
-            }}
-          >
-            <Image
-              src={"/next_img_icon.png"}
-              alt="Description of the image"
-              width={1000}
-              height={1000}
-              className="flex w-[45px] h-[45px] mobile:w-[24px] mobile:h-[24px]"
-            />
-          </button>
-        
+          className="absolute z-40 top-[45%] left-[120px] mobile:left-[60px] transform -translate-y-1/2 text-white p-2 mobile:w-[24px] mobile:h-[24px] w-[45px] h-[45px]"
+          onClick={() => swiperInstance && swiperInstance.slidePrev()}
+        >
+          <Image
+            src={"/prev_img_icon.png"}
+            alt="Slika"
+            width={1000}
+            height={1000}
+            className="flex w-[45px] h-[45px] mobile:w-[24px] mobile:h-[24px]"
+          />
+        </button>
+        <button
+          className="absolute z-40 top-[45%] right-[120px] mobile:right-[60px] transform -translate-y-1/2 text-white p-2 mobile:w-[24px] mobile:h-[24px] w-[40px] h-[40px]"
+          onClick={() => {
+            swiperInstance && swiperInstance.slideNext();
+          }}
+        >
+          <Image
+            src={"/next_img_icon.png"}
+            alt="Slika"
+            width={1000}
+            height={1000}
+            className="flex w-[45px] h-[45px] mobile:w-[24px] mobile:h-[24px]"
+          />
+        </button>
       </div>
       {/* <div className="absolute flex z-10 bg-red-600 h-10 mobile:w-[360px] tablet:w-[680px] desktop:w-[1200px] justify-between px-4">
         <div

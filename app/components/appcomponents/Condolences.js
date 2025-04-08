@@ -194,39 +194,27 @@ const PersonList = ({ currentSlide, setCurrentSlide, persons }) => {
   };
 
   const handleNext = () => {
-    if (currentSlide < persons.length - 1) {
-      setCurrentSlide(currentSlide + 1);
-    }
-  };
-
-  const handlePrev = () => {
-    if (currentSlide > 0) {
-      setCurrentSlide(currentSlide - 1);
-    }
-  };
-
-  const handleDesktopPrev = () => {
-    const prevSlide = currentSlide - 3;
-    if (prevSlide >= 0) {
-      setCurrentSlide(prevSlide);
-    }
-  };
-
-  const handleDesktopNext = () => {
     const nextSlide = currentSlide + 3;
     if (nextSlide < persons.length) {
       setCurrentSlide(nextSlide);
     }
   };
 
+  const handlePrev = () => {
+    const prevSlide = currentSlide - 3;
+    if (prevSlide >= 0) {
+      setCurrentSlide(prevSlide);
+    }
+  };
+
   const isFirst = currentSlide === 0;
-  const isLast = currentSlide === persons.length - 1;
+  const isLast = currentSlide + 3 >= persons.length;
 
   return (
     <div className="w-full">
       {/* Tablet View */}
-      <div className="w-full tablet:flex mobile:hidden desktop:hidden h-[100px] tablet:h-[248px] gap-[32px] flex-row justify-center items-center relative">
-        {persons?.length > 1 && !isFirst && (
+      <div className="w-full tablet:flex mobile:hidden desktop:hidden   gap-[32px] flex-col justify-center items-center relative">
+        {!isFirst && (
           <button
             onClick={handlePrev}
             className="absolute -left-[30px] tablet:flex hidden"
@@ -235,15 +223,17 @@ const PersonList = ({ currentSlide, setCurrentSlide, persons }) => {
           </button>
         )}
 
-        <PersonCard
-          key={currentSlide}
-          name={persons[currentSlide]?.name}
-          date={formatDate(persons[currentSlide]?.createdTimestamp)}
-          relation={persons[currentSlide]?.relation}
-          Condolence={persons[currentSlide]?.message}
-        />
+        {persons?.slice(currentSlide, currentSlide + 3).map((person, index) => (
+          <PersonCard
+            key={currentSlide + index}
+            name={person.name}
+            date={formatDate(person.createdTimestamp)}
+            relation={person.relation}
+            Condolence={person.message}
+          />
+        ))}
 
-        {persons?.length > 1 && !isLast && (
+        {!isLast && (
           <button
             onClick={handleNext}
             className="absolute -right-[30px] tablet:flex hidden"
@@ -258,48 +248,53 @@ const PersonList = ({ currentSlide, setCurrentSlide, persons }) => {
       </div>
 
       {/* Mobile View */}
-      <div className="w-full hidden mobile:flex flex-col items-center justify-center mt-[20px]">
-        <PersonCard
-          key={currentSlide}
-          name={persons[currentSlide]?.name}
-          date={formatDate(persons[currentSlide]?.createdTimestamp)}
-          relation={persons[currentSlide]?.relation}
-          Condolence={persons[currentSlide]?.message}
-        />
-        <div className="flex justify-between mt-[26px] w-[168px] h-[41px]">
-          {!isFirst && (
-            <button
-              onClick={handlePrev}
-              className="h-[36px] w-[36px] bg-white bg-opacity-20 shadow-custom-light-dark rounded-lg flex justify-center items-center px-2"
-            >
-              <img
-                src="/img_back_mob.png"
-                alt="Back"
-                className="h-[13.79px] w-[8.43px]"
+      <div className="w-full hidden mobile:flex flex-col items-center justify-center mt-[20px] relative">
+        {!isFirst && (
+          <button
+            onClick={handlePrev}
+            className="absolute left-0 top-[50%] transform -translate-y-1/2 h-[36px] w-[36px] bg-white bg-opacity-20 shadow-custom-light-dark rounded-lg flex justify-center items-center px-2"
+          >
+            <img
+              src="/img_back_mob.png"
+              alt="Back"
+              className="h-[13.79px] w-[8.43px]"
+            />
+          </button>
+        )}
+
+        <div className="flex flex-col gap-4">
+          {persons
+            ?.slice(currentSlide, currentSlide + 3)
+            .map((person, index) => (
+              <PersonCard
+                key={currentSlide + index}
+                name={person.name}
+                date={formatDate(person.createdTimestamp)}
+                relation={person.relation}
+                Condolence={person.message}
               />
-            </button>
-          )}
-          {!isLast && (
-            <button
-              onClick={handleNext}
-              className="h-[36px] w-[36px] bg-white bg-opacity-20 shadow-custom-light-dark rounded-lg flex justify-center items-center px-2"
-            >
-              <img
-                src="/img_forward_mob.png"
-                alt="Next"
-                className="h-[13.79px] w-[8.43px]"
-              />
-            </button>
-          )}
+            ))}
         </div>
+
+        {!isLast && (
+          <button
+            onClick={handleNext}
+            className="absolute right-0 top-[50%] transform -translate-y-1/2 h-[36px] w-[36px] bg-white bg-opacity-20 shadow-custom-light-dark rounded-lg flex justify-center items-center px-2"
+          >
+            <img
+              src="/img_forward_mob.png"
+              alt="Next"
+              className="h-[13.79px] w-[8.43px]"
+            />
+          </button>
+        )}
       </div>
 
       {/* Desktop View */}
-
       <div className="w-full hidden desktop:flex h-[133px] flex-row justify-center items-center gap-6 relative">
-        {currentSlide > 0 && (
+        {!isFirst && (
           <button
-            onClick={handleDesktopPrev}
+            onClick={handlePrev}
             className="absolute top-28 -left-[30px] desktop:flex hidden"
           >
             <img src="/img_back.png" alt="Back" className="h-[40px] w-[17px]" />
@@ -317,9 +312,9 @@ const PersonList = ({ currentSlide, setCurrentSlide, persons }) => {
           </div>
         ))}
 
-        {currentSlide + 3 < persons.length && (
+        {!isLast && (
           <button
-            onClick={handleDesktopNext}
+            onClick={handleNext}
             className="absolute top-28 -right-[30px] desktop:flex hidden"
           >
             <img
@@ -340,8 +335,8 @@ const Condolences = ({ set_Id, setModal, data }) => {
   const totalSlides = Math.ceil(data?.length / 2);
 
   return (
-    <div className="max-w-[1920px] h-[661px]   tablet:h-[590px] mobile:h-[571px] w-full mx-auto flex flex-col justify-center items-center overflow-hidden">
-      <div className="w-[1024px] tablet:w-[678.78px]   mobile:w-[341px] mobile:h-[450px]  tablet:h-[287px] dekstop:h-auto flex flex-col items-center ">
+    <div className="max-w-[1920px] h-auto     w-full mx-auto flex flex-col justify-center items-center ">
+      <div className="w-[1024px] tablet:w-[678.78px]   mobile:w-[341px] h-auto  flex flex-col items-center ">
         <div className="flex flex-row h-[47px] items-center">
           <div className="font-variation-customOpt40 text-[40px] leading-[46.88px] mr-[8px] mobile:text-[28px] mobile:leading-[32.9px] mobile:font-variation-customOpt28 text-[#1E2125] ">
             Sožalja
@@ -352,8 +347,8 @@ const Condolences = ({ set_Id, setModal, data }) => {
         </div>
 
         <div
-          className="flex my-[48px] cursor-pointer tablet:mt-[40px] mobile:mt-[25px] justify-center items-center mobile:rounded-lg rounded-[100px] border-[2px] border-[#FFFFFF] w-[165px] bg-gradient-to-r from-[#FFFFFF] to-[#FFFFFF30] h-[60px] 
-        tablet:h-[48px] tablet:w-[180px] mobile:h-[48px] mobile:w-[180px] tablet:rounded-lg tablet:py-[12px]"
+          className="flex my-[48px] cursor-pointer tablet:mt-[40px] mobile:mt-[25px] justify-center items-center   rounded-[100px] border-[2px] border-[#FFFFFF] w-[165px] bg-gradient-to-r from-[#FFFFFF] to-[#FFFFFF30] h-[60px] 
+        tablet:h-[60px] tablet:w-[180px] mobile:h-[60px] mobile:w-[180px]   tablet:py-[20px]"
           onClick={() => {
             set_Id("sayings_condolence");
             // set_Id("18");
@@ -361,8 +356,8 @@ const Condolences = ({ set_Id, setModal, data }) => {
           }}
         >
           <div
-            className="w-[110px] h-[48px] tablet:w-[126px] tablet:h-[24px] mobile:w-[126px] mobile:h-[24px]
-          mobile:flex mobile:flex-row mobile:items-center tablet:flex tablet:flex-row tablet:items-center "
+            className="w-[110px] h-[48px] tablet:w-[126px]    mobile:w-[126px] 
+            "
           >
             <img
               src="/ico_add_person.png"
@@ -380,7 +375,7 @@ const Condolences = ({ set_Id, setModal, data }) => {
           </div>
         </div>
 
-        <div className="h-[133px]  tablet:h-[100px] tablet:mt-[52px] mobile:mt-[19px] flex flex-row justify-between tablet:justify-around my-[48px]">
+        <div className="h-auto    tablet:mt-[52px] mobile:mt-[19px] flex flex-row justify-between tablet:justify-around my-[48px]">
           {data?.length > 0 && (
             <PersonList
               currentSlide={currentSlide}
@@ -398,7 +393,7 @@ const Condolences = ({ set_Id, setModal, data }) => {
           </div>
         )}
         {data?.length > 1 && (
-          <div className="hidden tablet:flex">
+          <div className="hidden tablet:flex  ">
             <ProgressBar
               currentSlide={currentSlide - 1}
               totalSlides={totalSlides}
