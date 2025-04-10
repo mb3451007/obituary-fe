@@ -7,7 +7,7 @@ import Link from "next/link";
 function Header({ onMenuCLick, from, isMegaMenuVisible }) {
   const [showCloseButton, setShowCloseButton] = useState(false);
   return (
-    <header className="flex flex-col fixed top-[45px] left-0 right-0 shadow-md z-50 pt-[1px] bg-[#FFFFFF]">
+    <header className="flex flex-col fixed top-[45px] left-0 right-0 shadow-md z-20 pt-[1px] bg-[#FFFFFF]">
       <div className=" flex w-full justify-center">
         <div
           className={`

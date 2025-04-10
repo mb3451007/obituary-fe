@@ -1,11 +1,14 @@
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
+import Registration from "./Registration";
 
 const TopBar = ({
   setIsModalVisible,
   setIsMessageModalVisible,
   setIsLocalQuickModalVisible,
 }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const popuButtonRef = React.useRef();
   return (
     <div className="flex w-full h-[45px] flex-col items-center justify-between bg-[#414141] ">
@@ -13,13 +16,16 @@ const TopBar = ({
         <div className=" w-full z-0  flex  flex-row items-center mobile:justify-between ">
           <div className="flex desktop:pl-[23px] tablet:pl-[23px] flex-row items-center">
             {/* 24 October 2024 /keeperpromo */}
-            <Link href={"/registrationpage"}>
+            <button onClick={() => setIsModalOpen(true)} >
               <img
                 src="ico_user_top.png"
                 alt="user"
                 className="w-[24px] h-[24px] "
               />
-            </Link>
+            </button>
+            <Registration isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+
+            </Registration>
             <button
               className="ml-[50px]  tablet:ml-[95px] desktop:ml-[80px]"
               onClick={() => {
